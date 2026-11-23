@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ประวัติงานผู้รับเหมา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#f4f6f9; --panel:#ffffff; --panel2:#f8fafc; --line:#e2e8f0; --text:#0f172a; --muted:#64748b;
+  --brand:#1d4ed8; --brand-soft:#dbeafe; --nav:#0f172a; --nav-text:#cbd5e1; --nav-active:#1e293b;
+  --pm:#2563eb; --pm-soft:#dbeafe; --cm:#dc2626; --cm-soft:#fee2e2; --rp:#d97706; --rp-soft:#fef3c7;
+  --ok:#16a34a; --ok-soft:#dcfce7; --warn:#d97706; --warn-soft:#fef3c7; --bad:#dc2626; --bad-soft:#fee2e2;
+  --gray-soft:#f1f5f9; --shadow:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.08);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0b1120; --panel:#111827; --panel2:#0f172a; --line:#1f2937; --text:#e5e7eb; --muted:#94a3b8;
+  --brand:#60a5fa; --brand-soft:#1e3a8a; --nav:#020617; --nav-text:#94a3b8; --nav-active:#1e293b;
+  --pm:#60a5fa; --pm-soft:#1e3a8a; --cm:#f87171; --cm-soft:#7f1d1d; --rp:#fbbf24; --rp-soft:#78350f;
+  --ok:#4ade80; --ok-soft:#14532d; --warn:#fbbf24; --warn-soft:#78350f; --bad:#f87171; --bad-soft:#7f1d1d; --gray-soft:#1f2937;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b1120; --panel:#111827; --panel2:#0f172a; --line:#1f2937; --text:#e5e7eb; --muted:#94a3b8;
+  --brand:#60a5fa; --brand-soft:#1e3a8a; --nav:#020617; --nav-text:#94a3b8; --nav-active:#1e293b;
+  --pm:#60a5fa; --pm-soft:#1e3a8a; --cm:#f87171; --cm-soft:#7f1d1d; --rp:#fbbf24; --rp-soft:#78350f;
+  --ok:#4ade80; --ok-soft:#14532d; --warn:#fbbf24; --warn-soft:#78350f; --bad:#f87171; --bad-soft:#7f1d1d; --gray-soft:#1f2937;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Sarabun,system-ui,sans-serif;font-size:15px}
+a{color:var(--brand)}
+.app{display:flex;min-height:100vh}
+aside{width:236px;background:var(--nav);color:var(--nav-text);flex-shrink:0;position:sticky;top:0;height:100vh;overflow:auto}
+aside .logo{padding:18px 18px 14px;color:#fff;font-weight:700;font-size:17px;line-height:1.3;border-bottom:1px solid #1e293b}
+aside .logo small{display:block;font-weight:400;color:var(--nav-text);font-size:12px;margin-top:2px}
+aside nav a{display:flex;align-items:center;gap:10px;padding:10px 18px;color:var(--nav-text);text-decoration:none;font-size:14.5px;border-left:3px solid transparent}
+aside nav a:hover{background:var(--nav-active);color:#fff}
+aside nav a.on{background:var(--nav-active);color:#fff;border-left-color:#60a5fa}
+aside nav .sec{padding:14px 18px 4px;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:#64748b}
+aside .cnt{margin-left:auto;background:#dc2626;color:#fff;border-radius:10px;font-size:11px;padding:0 7px;min-width:20px;text-align:center}
+main{flex:1;min-width:0;padding:22px 26px 60px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.top h1{font-size:22px;margin:0;font-weight:700}
+.top .sub{color:var(--muted);font-size:13.5px}
+.top .sp{flex:1}
+.menu-btn{display:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.card h3{margin:0 0 12px;font-size:16px}
+.grid{display:grid;gap:14px}
+.k4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.c2{grid-template-columns:1fr 1fr}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi .l{color:var(--muted);font-size:13px}
+.kpi .v{font-size:28px;font-weight:700;margin-top:2px}
+.kpi .h{font-size:12px;color:var(--muted)}
+.kpi.bad .v{color:var(--bad)} .kpi.warn .v{color:var(--warn)} .kpi.ok .v{color:var(--ok)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:7px 13px;border-radius:7px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--brand)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.sm{padding:4px 9px;font-size:13px}
+.btn.ghost{background:transparent;border-color:transparent}
+input,select,textarea{font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:7px 9px;width:100%}
+textarea{min-height:64px;resize:vertical}
+label.f{display:block;font-size:13px;color:var(--muted);margin-bottom:10px}
+label.f>span{display:block;margin-bottom:4px}
+.req{color:var(--bad)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input,.toolbar select{width:auto;min-width:150px}
+.tbl-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--panel2);font-weight:600;color:var(--muted);font-size:13px;position:sticky;top:0;z-index:1;white-space:nowrap}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--panel2)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-pm{background:var(--pm-soft);color:var(--pm)} .b-cm{background:var(--cm-soft);color:var(--cm)} .b-rp{background:var(--rp-soft);color:var(--rp)}
+.b-ok{background:var(--ok-soft);color:var(--ok)} .b-warn{background:var(--warn-soft);color:var(--warn)} .b-bad{background:var(--bad-soft);color:var(--bad)}
+.b-gray{background:var(--gray-soft);color:var(--muted)} .b-brand{background:var(--brand-soft);color:var(--brand)}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:0;background:none;font:inherit;padding:8px 14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:6px;height:180px;padding:8px 0 0}
+.bars .m{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.bars .st{display:flex;align-items:flex-end;gap:2px;height:150px;width:100%;justify-content:center}
+.bars .b{width:42%;border-radius:3px 3px 0 0;min-height:1px}
+.bars .lb{font-size:11.5px;color:var(--muted)}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.timeline{position:relative;padding-left:18px}
+.timeline:before{content:"";position:absolute;left:5px;top:4px;bottom:4px;width:2px;background:var(--line)}
+.ti{position:relative;margin-bottom:12px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+.ti:before{content:"";position:absolute;left:-18px;top:13px;width:12px;height:12px;border-radius:50%;background:var(--pm);border:2px solid var(--panel)}
+.ti.CM:before{background:var(--cm)} .ti.REPLACE:before{background:var(--rp)}
+.ti .hd{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13.5px}
+.ti .bd{font-size:14px;margin-top:4px;white-space:pre-wrap}
+.dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 18px;font-size:14px}
+.dl div{display:flex;gap:6px;border-bottom:1px dashed var(--line);padding:4px 0}
+.dl b{color:var(--muted);font-weight:500;min-width:110px}
+.modal-bg{position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;z-index:50;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px}
+.modal-bg.on{display:flex}
+.modal{background:var(--panel);border-radius:12px;width:min(980px,100%);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.modal .mh{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);gap:10px}
+.modal .mh h2{margin:0;font-size:18px;flex:1}
+.modal .mb{padding:16px 18px;max-height:calc(100vh - 190px);overflow:auto}
+.modal .mf{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel);font:inherit;font-size:14px;padding:7px 14px;cursor:pointer;color:var(--text);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--brand);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--brand-soft);color:var(--brand);padding:2px 8px;border-radius:12px;font-size:13px}
+.chip button{border:0;background:none;color:inherit;cursor:pointer;font-size:14px;padding:0 2px}
+.picker{position:relative}
+.picker .dd{position:absolute;z-index:5;left:0;right:0;top:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;max-height:240px;overflow:auto;box-shadow:var(--shadow);display:none}
+.picker .dd.on{display:block}
+.picker .dd div{padding:6px 10px;cursor:pointer;font-size:14px}
+.picker .dd div:hover{background:var(--panel2)}
+.section-t{font-weight:600;font-size:14.5px;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.matrix td,.matrix th{padding:5px 6px;text-align:center;font-size:12.5px}
+.matrix td:first-child,.matrix th:first-child{text-align:left;white-space:nowrap}
+.cell{display:inline-block;min-width:30px;padding:2px 4px;border-radius:5px;font-weight:600}
+.c-done{background:var(--ok-soft);color:var(--ok)} .c-miss{background:var(--bad-soft);color:var(--bad)} .c-cm{background:var(--cm-soft);color:var(--cm)} .c-na{color:var(--line)}
+.toast{position:fixed;right:18px;bottom:18px;background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px;z-index:99;display:none;max-width:360px}
+.toast.on{display:block}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.wf{display:flex;gap:0;align-items:center;flex-wrap:wrap;font-size:13px}
+.wf span{padding:4px 10px;border:1px solid var(--line);background:var(--panel2)}
+.wf span.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.wf i{color:var(--muted);padding:0 4px;font-style:normal}
+.prog{height:8px;background:var(--gray-soft);border-radius:4px;overflow:hidden;min-width:80px}
+.prog i{display:block;height:100%;background:var(--ok)}
+@media (max-width:860px){
+  aside{position:fixed;left:-250px;z-index:60;transition:left .2s}
+  aside.on{left:0}
+  .menu-btn{display:inline-flex}
+  main{padding:14px 16px 60px}
+  .c2{grid-template-columns:1fr}
+  .toolbar input,.toolbar select{min-width:0;flex:1 1 140px}
+}
+@media print{aside,.top .btn,.toolbar,.no-print{display:none!important} main{padding:0} .card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside id="side">
+  <div class="logo">ระบบประวัติงานผู้รับเหมา<small>Contractor Maintenance History · อาคารภูมิสิริมังคลานุสรณ์</small></div>
+  <nav id="nav"></nav>
+  <div id="sync" class="small" style="padding:14px 18px;color:#64748b;border-top:1px solid #1e293b;margin-top:10px"></div>
+</aside>
+<main id="main"></main>
+</div>
+<div class="modal-bg" id="mbg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+/* ====================== CONFIG ====================== */
+const TASKS = {'1M':{m:1,t:'รายเดือน'},'2M':{m:2,t:'2 เดือน'},'3M':{m:3,t:'3 เดือน'},'6M':{m:6,t:'6 เดือน'},'H':{m:6,t:'ครึ่งปี (H)'},'Y':{m:12,t:'รายปี'}};
+const TYPE = {PM:{t:'บำรุงรักษา (PM)',c:'b-pm'},CM:{t:'ซ่อม (CM)',c:'b-cm'},REPLACE:{t:'เปลี่ยนอุปกรณ์',c:'b-rp'}};
+const RESULT = {normal:{t:'ปกติ',c:'b-ok'},needParts:{t:'ควรเปลี่ยนอะไหล่',c:'b-warn'},broken:{t:'ชำรุด/รอซ่อม',c:'b-bad'}};
+const STATUS = {draft:{t:'ร่าง',c:'b-gray'},submitted:{t:'รอตรวจรับ',c:'b-warn'},approved:{t:'ตรวจรับแล้ว',c:'b-ok'},rejected:{t:'ตีกลับแก้ไข',c:'b-bad'}};
+const CTYPE = {regular:{t:'ประจำ (สัญญา MA)',c:'b-brand'},adhoc:{t:'เฉพาะกิจ',c:'b-rp'}};
+const SYS_TH = {'Electrical System':'ระบบไฟฟ้า','Airconditioning System':'ระบบปรับอากาศ','Sanitary System':'ระบบสุขาภิบาล','Fire Protection System':'ระบบป้องกันอัคคีภัย','Medical Gas System':'ระบบแก๊สทางการแพทย์'};
+const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const LS_KEY = 'contractorHistory.v1';
+/* Regular contractors seen in the Sep 2569 monthly service reports (file 2) + history (file 1).
+   Contract dates / totals are left blank on purpose: fill them in on the ผู้รับเหมา page. */
+const SEED_CONTRACTORS = [
+  {id:'c-iyara',name:'บจก. ไอยรา อินเตอร์เทรด',short:'ไอยรา',type:'regular',scope:'บำรุงรักษาเครื่องกำเนิดไฟฟ้าสำรอง (Generator)',cats:['Generator'],freq:'ทุก 3 เดือน (ตามรายงาน)',lastRound:12},
+  {id:'c-sahapee',name:'สหพีร์',short:'สหพีร์',type:'regular',scope:'Cooling Tower, เครื่องสูบน้ำปรับอากาศ, เครื่องสูบน้ำประปา',cats:['Cooling Tower','Primary Chiller Pump','Secondary Chiller Pump','Condenser pump','Cold Water Transfer Pump'],freq:'รายเดือน',lastRound:12},
+  {id:'c-jep',name:'JEP',short:'JEP',type:'regular',scope:'ระบบแก๊สทางการแพทย์',cats:['Medical Air','Instrument Air','Vacuum','Oxygen Manifold','Nitrous Oxide Manifold','Carbon dioxide Manifold'],freq:'รายเดือน',lastRound:12},
+  {id:'c-knc',name:'KNC',short:'KNC',type:'regular',scope:'ระบบปั๊มสูบน้ำเสีย / ดูดตะกอนบ่อเกรอะและบ่อน้ำเสีย',cats:['Submersible Drainage Pump','Submersible Sewage Pump','Waste Water Pump','Neutralization Pump'],freq:'รายเดือน',lastRound:12},
+  {id:'c-forbes',name:'ฟอร์เบส',short:'ฟอร์เบส',type:'regular',scope:'ระบบน้ำร้อน (Heat Pump)',cats:['Heat Pump'],freq:'รายเดือน',lastRound:36},
+  {id:'c-hitachi',name:'ฮิตาชิ',short:'ฮิตาชิ',type:'regular',scope:'ลิฟต์และบันไดเลื่อน',cats:[],freq:'รายเดือน',lastRound:36},
+  {id:'c-penelles',name:'เพเนเล่ส์',short:'เพเนเล่ส์',type:'regular',scope:'ประตูอัตโนมัติ Hermetic Door',cats:[],freq:'',lastRound:6},
+  {id:'c-leader',name:'ลีดเดอร์โปรดักส์',short:'ลีดเดอร์ฯ',type:'regular',scope:'สระธาราบำบัด ชั้น 14',cats:[],freq:'รายเดือน',lastRound:36},
+  {id:'c-jci',name:'Johnson Controls',short:'JCI',type:'regular',scope:'เครื่องทำน้ำเย็น (Chiller)',cats:['Chiller'],freq:'2 เดือน / 6 เดือน / รายปี',lastRound:null},
+  {id:'c-firetrade',name:'บ. ไฟร์เทรด',short:'ไฟร์เทรด',type:'regular',scope:'FM-200 / Pre Action',cats:['FM-200','Pre Action'],freq:'',lastRound:null}
+];
+const SEED_REPORTS = [
+  ['c-forbes','รายงานการบำรุงรักษาระบบน้ำร้อน',36],['c-sahapee','รายงานการบำรุงรักษาเครื่องสูบน้ำปรับอากาศ (Air Condition Water Pump)',12],
+  ['c-hitachi','รายงานการบำรุงรักษาลิฟต์และบันไดเลื่อน',36],['c-jep','รายงานการบำรุงรักษาระบบแก๊สทางการแพทย์',12],
+  ['c-penelles','รายงานการบำรุงรักษาประตูอัตโนมัติ Hermetic Door',6],['c-leader','รายงานการบำรุงรักษาสระธาราบำบัด ชั้น 14',36],
+  ['c-knc','รายงานระบบปั๊มสูบน้ำเสีย',12],['c-sahapee','รายงานการบำรุงรักษาเครื่องสูบน้ำประปา (Cold Water Pump)',12],
+  ['c-knc','รายงานการดูดตะกอนบ่อเกรอะและบ่อน้ำเสีย',null],['c-iyara','รายงานการบำรุงรักษาเครื่องกำเนิดไฟฟ้าสำรอง (Generator)',12],
+  ['c-sahapee','รายงานการบำรุงรักษาหอระบายความร้อน (Cooling Tower)',12]
+].map((r,i)=>({id:'rp-seed-'+(i+1),contractorId:r[0],title:r[1],round:r[2],month:'2026-09',receivedDate:'',link:'',equipIds:[],summary:'',issues:'',seed:true}));
+SEED_REPORTS[9].serviceDate='2026-09-25';
+SEED_REPORTS[9].summary='เปลี่ยนไส้กรองทั้งหมด + น้ำมันเครื่อง + น้ำยาหล่อเย็น + แบตเตอรี่ (GS N200) ทุกเครื่อง';
+SEED_REPORTS[9].issues='Gen No.1 ขั้วแบตเตอรี่ ขั้ว- ลูกที่ 4 หัก / Gen No.3 ขั้ว +/- ลูกที่ 2 หัก → เปลี่ยนขั้วใหม่ 3 ขั้ว แก้ไขเรียบร้อย ทดสอบเครื่องทำงานปกติ';
+SEED_REPORTS[9].equipIds=['Gen-01','Gen-02','Gen-03'];
+
+/* ====================== UTIL ====================== */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p=>p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pad = n=>String(n).padStart(2,'0');
+const todayISO = ()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+function parseDate(s){
+  s=String(s||'').trim(); if(!s||s==='-') return '';
+  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(m){const y=+m[1]; return (y>=2015&&y<=2035)?s:'';}
+  m=s.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})$/);
+  if(m){let d=+m[1],mo=+m[2],y=+m[3]; if(y<100) y = y>=50 ? 2500+y-543 : 2000+y; else if(y>2400) y-=543;
+    if(mo<1||mo>12||d<1||d>31||y<2015||y>2035) return ''; return y+'-'+pad(mo)+'-'+pad(d);}
+  return '';
+}
+function fdate(iso){ if(!iso) return '–'; const [y,m,d]=iso.split('-'); return (+d)+' '+MONTHS[+m-1]+' '+((+y+543)%100); }
+function fdateLong(iso){ if(!iso) return '–'; const [y,m,d]=iso.split('-'); return (+d)+' '+MONTHS[+m-1]+' '+(+y+543); }
+const fmonth = ym=>{const [y,m]=ym.split('-');return MONTHS[+m-1]+' '+(+y+543);};
+function addMonths(iso,n){const d=new Date(iso+'T00:00:00');d.setMonth(d.getMonth()+n);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+const daysBetween=(a,b)=>Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/864e5);
+const money = n=>n?Number(n).toLocaleString('th-TH',{maximumFractionDigits:2}):'–';
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600);}
+function badge(map,k){const o=map[k];return o?`<span class="badge ${o.c}">${esc(o.t)}</span>`:'';}
+const normName = s=>String(s||'').replace(/^(นาย|นาง|นางสาว|น\.ส\.)\s*/,'').replace(/\s+/g,'').trim();
+
+/* ====================== DATA LAYER ======================
+   Seed (read-only, from data.js) + user layer (localStorage).
+   To move to Google Sheets later, replace Store.load/save with google.script.run calls; the record shape stays the same. */
+const GAS = !!(window.google && google.script && google.script.run);
+let RAW = null; // {equip, records, contractors, reports, techMap, settings} — source data before derivation
+const Store = {
+  user:{records:{},deleted:{},contractors:{},reports:{},techMap:{},settings:{}},
+  pending:0,
+  load(){ try{ const j=JSON.parse(localStorage.getItem(LS_KEY)||'null'); if(j) this.user=Object.assign(this.user,j);}catch(e){} },
+  save(){ if(GAS) return; try{ localStorage.setItem(LS_KEY,JSON.stringify(this.user)); }catch(e){ toast('บันทึกไม่สำเร็จ: '+e.message); } },
+  init(cb){
+    if(!GAS){ this.load(); RAW=rawFromLocal(); syncBadge(); return cb(); }
+    $('#main').innerHTML='<div class="empty">กำลังโหลดข้อมูลจาก Google Sheets…</div>';
+    google.script.run.withSuccessHandler(p=>{ RAW=rawFromServer(p); syncBadge(); cb(); })
+      .withFailureHandler(e=>{ $('#main').innerHTML='<div class="card" style="border-color:var(--bad)"><b>โหลดข้อมูลจาก Google Sheets ไม่สำเร็จ</b><br>'+esc(e.message||e)+'</div>'; }).getAll();
+  },
+  reload(){ if(this.pending){ toast('รอบันทึกให้เสร็จก่อน'); return; } this.init(()=>{ buildDB(); route(); toast('โหลดข้อมูลล่าสุดแล้ว'); }); },
+  call(fn,arg){ this.pending++; syncBadge();
+    google.script.run.withSuccessHandler(()=>{ this.pending--; syncBadge(); })
+      .withFailureHandler(e=>{ this.pending--; syncBadge(); alert('บันทึกขึ้น Google Sheets ไม่สำเร็จ: '+(e.message||e)+'\nกรุณากด “รีเฟรชข้อมูล” แล้วลองใหม่'); })[fn](arg); },
+  putRecords(list){ list.forEach(r=>upsertById(RAW.records,r)); if(GAS) this.call('upsertRecords',list); else { list.forEach(r=>this.user.records[r.id]=r); this.save(); } },
+  delRecord(r){ RAW.records=RAW.records.filter(x=>x.id!==r.id); if(GAS) this.call('deleteRows',{sheet:'WorkRecords',ids:[r.id]}); else { if(r.seed) this.user.deleted[r.id]=1; else delete this.user.records[r.id]; this.save(); } },
+  putContractor(c){ upsertById(RAW.contractors,c); if(GAS) this.call('upsertContractors',[c]); else { this.user.contractors[c.id]=c; this.save(); } },
+  putReport(r){ upsertById(RAW.reports,r); if(GAS) this.call('upsertReports',[r]); else { this.user.reports[r.id]=r; this.save(); } },
+  delReport(r){ RAW.reports=RAW.reports.filter(x=>x.id!==r.id); if(GAS) this.call('deleteRows',{sheet:'MonthlyReports',ids:[r.id]}); else { if(r.seed) this.user.deleted[r.id]=1; else delete this.user.reports[r.id]; this.save(); } },
+  setTech(k,v){ if(v) RAW.techMap[k]=v; else delete RAW.techMap[k]; if(GAS) this.call('setTechMap',{key:k,value:v||''}); else this.save(); },
+  setSetting(k,v){ if(v===''||v==null) delete RAW.settings[k]; else RAW.settings[k]=v; if(GAS) this.call('setSetting',{key:k,value:v==null?'':String(v)}); else this.save(); }
+};
+function upsertById(arr,o){ const i=arr.findIndex(x=>x.id===o.id); if(i>=0) arr[i]=o; else arr.push(o); }
+function syncBadge(){ const b=$('#sync'); if(!b) return;
+  b.innerHTML=GAS?(Store.pending?'⟳ กำลังบันทึกขึ้น Google Sheets…':'✓ เชื่อมต่อ Google Sheets')+' · <a href="javascript:Store.reload()" style="color:#93c5fd">รีเฟรชข้อมูล</a>':'โหมดออฟไลน์ · ข้อมูลเก็บในเบราว์เซอร์นี้'; }
+let DB = {equip:[],eqById:{},records:[],recById:{},contractors:[],conById:{},reports:[],issues:[]};
+
+function fileCode(file){
+  let n=file.split('/').pop().replace(/\.xlsx$/i,'').replace('ประวัติเครื่องจักร','').trim().replace(/^-\s*/,'');
+  if(/^FM200/i.test(n)) return 'FM200'; if(/^Pre Action/i.test(n)) return 'PRE-ACTION';
+  n=n.replace(/^Chiller/i,'CH').replace(/\s*No\.?\s*/i,'-').replace(/\s+/g,'').replace(/-+/g,'-').replace(/-$/,'');
+  n=n.replace(/^([A-Za-z0-9]+?)-?(\d+)$/,(a,p,d)=>p+'-'+pad(+d));
+  return n;
+}
+/* Local mode: seed (data.js) + overlay saved in this browser */
+function rawFromLocal(){
+  const equip=[], records=[], U=Store.user;
+  (window.SEED_EQUIP||[]).forEach(e=>{
+    const id=fileCode(e.file);
+    equip.push({id,unit:(e.unit||'').replace(/\s+/g,''),file:e.file,systemGroup:e.systemGroup,category:e.category,name:(e.info&&e.info.Name)||e.category,info:e.info||{},tech:e.tech||{}});
+    (e.pm||[]).forEach((p,i)=>records.push({id:`s-${id}-pm-${i}`,seed:true,type:'PM',equipId:id,date:parseDate(p.date),rawDate:p.date,task:p.task,by:p.by,parts:p.parts?[{code:p.partCode,name:p.parts,qty:''}]:[],remark:p.remark,status:'approved',contractType:'regular',contractorId:''}));
+    (e.cm||[]).forEach((c,i)=>{ const hp=!!c.parts;
+      records.push({id:`s-${id}-cm-${i}`,seed:true,type:hp&&/เปลี่ยน/.test(c.solution||'')?'REPLACE':'CM',equipId:id,date:parseDate(c.orderDate),rawDate:c.orderDate,finishDate:parseDate(c.finishDate),job:c.job,parts:hp?[{code:c.partCode,name:c.parts,qty:''}]:[],cause:c.cause,remark:c.solution,status:'approved',contractType:'regular',contractorId:''}); });
+  });
+  const recs=records.filter(r=>!U.deleted[r.id]).map(r=>U.records[r.id]?Object.assign({},r,U.records[r.id]):r);
+  Object.values(U.records).forEach(r=>{ if(!r.seed&&!U.deleted[r.id]) recs.push(r); });
+  const cons=SEED_CONTRACTORS.map(c=>Object.assign({},c,U.contractors[c.id]||{}));
+  Object.values(U.contractors).forEach(c=>{ if(!cons.find(x=>x.id===c.id)) cons.push(c); });
+  const reps=SEED_REPORTS.map(r=>Object.assign({},r,U.reports[r.id]||{})).filter(r=>!U.deleted[r.id]);
+  Object.values(U.reports).forEach(r=>{ if(!r.seed&&!U.deleted[r.id]) reps.push(r); });
+  return {equip,records:recs,contractors:cons,reports:reps,techMap:U.techMap,settings:U.settings};
+}
+/* Google Sheets mode: payload from Code.gs getAll() */
+function rawFromServer(p){
+  return {equip:p.equip||[],records:p.records||[],contractors:p.contractors||[],reports:p.reports||[],techMap:p.techMap||{},settings:p.settings||{}};
+}
+function buildDB(){
+  const issues=[], techSig={};
+  const pre=s=>s.replace(/[-\d]+$/,'').toUpperCase(), dig=s=>(s.match(/(\d+)\D*$/)||[])[1];
+  const alias={TR:'TFMR',VP:'VA',CO:'C0'};
+  const equip=RAW.equip.map(e0=>{
+    const e=Object.assign({},e0), id=e.id, unit=e.unit||'';
+    if(unit && (+dig(unit)!==+dig(id) || (pre(unit)!==pre(id) && alias[pre(id).replace(/\d/g,'')]!==pre(unit).replace(/\d/g,''))))
+      issues.push({sev:'warn',eq:id,kind:'รหัสในชีทไม่ตรงชื่อไฟล์',detail:`ชื่อไฟล์ = ${id} แต่ในชีทเขียน ${e.info['Unit Number']||unit}`});
+    if(e.tech['S/N']){ const sig=[e.tech.Brand,e.tech.Model,e.tech['S/N']].join('|'); (techSig[sig]=techSig[sig]||[]).push(e); }
+    return e;
+  });
+  Object.values(techSig).forEach(list=>{ const cats=new Set(list.map(x=>x.category)); if(cats.size>1) list.forEach(x=>issues.push({sev:'bad',eq:x.id,kind:'S/N ซ้ำกับเครื่องต่างชนิด (ไฟล์ใดไฟล์หนึ่งคัดลอกข้อมูลเทคนิคมา)',detail:`Brand ${x.tech.Brand} / Model ${x.tech.Model} / S/N ${x.tech['S/N']} ซ้ำกับ ${list.filter(y=>y!==x).map(y=>y.id).slice(0,4).join(', ')}`})); });
+  const cons=RAW.contractors.map(c=>Object.assign({},c,{cats:c.cats||[]}));
+  const conById={}; cons.forEach(c=>conById[c.id]=c);
+  const catCon={}; cons.filter(c=>c.type==='regular').forEach(c=>c.cats.forEach(k=>catCon[k]=catCon[k]||c.id));
+  const eqById={}; equip.forEach(e=>{eqById[e.id]=e; e.contractorId=catCon[e.category]||null;});
+  const tm=RAW.techMap||{};
+  const all=RAW.records.map(r0=>{
+    const r=Object.assign({},r0);
+    if(!r.contractorId){ // derive company: explicit name in "by", else technician → contractor map
+      if(/johnson/i.test(r.by||'')) r.contractorId='c-jci';
+      else if(/ไฟร์เทรด/.test(r.by||'')) r.contractorId='c-firetrade';
+      else if(r.by && tm[normName(r.by)]) r.contractorId=tm[normName(r.by)];
+    }
+    if(r.seed){
+      if(!r.date) issues.push({sev:'bad',eq:r.equipId,kind:r.type==='PM'?'วันที่ PM อ่านไม่ได้/ผิดปกติ':'วันแจ้งซ่อมอ่านไม่ได้/ผิดปกติ',detail:`ค่า "${r.rawDate}"`});
+      if(r.type==='PM'&&!r.task) issues.push({sev:'warn',eq:r.equipId,kind:'ไม่ระบุรอบ PM',detail:`${r.rawDate} ${r.remark||''}`.slice(0,90)});
+    }
+    return r;
+  });
+  all.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const recById={}; all.forEach(r=>recById[r.id]=r);
+  const reps=RAW.reports.map(r=>Object.assign({},r,{equipIds:r.equipIds||[]}));
+  DB={equip,eqById,records:all,recById,contractors:cons,conById,reports:reps,issues};
+  equip.forEach(e=>{ e.recs=[]; });
+  all.forEach(r=>{ const e=eqById[r.equipId]; if(e) e.recs.push(r); });
+  equip.forEach(computeEqStats);
+}
+function computeEqStats(e){
+  const pm=e.recs.filter(r=>r.type==='PM'&&r.date&&r.status!=='rejected');
+  const freqs=pm.map(r=>(TASKS[r.task]||{}).m).filter(Boolean);
+  const cnt={}; freqs.forEach(f=>cnt[f]=(cnt[f]||0)+1);
+  // base frequency = smallest interval that appears at least twice (else smallest seen)
+  const keys=Object.keys(cnt).map(Number).sort((a,b)=>a-b);
+  e.baseFreq = (+RAW.settings['freq:'+e.id]||0) || keys.find(k=>cnt[k]>=2) || keys[0] || null;
+  e.lastPM = pm.length?pm.map(r=>r.date).sort().pop():'';
+  e.nextDue = e.lastPM&&e.baseFreq?addMonths(e.lastPM,e.baseFreq):'';
+  e.overdueDays = e.nextDue?daysBetween(e.nextDue,todayISO()):0;
+  e.cmCount=e.recs.filter(r=>r.type!=='PM').length;
+  e.partsCount=e.recs.filter(r=>r.parts&&r.parts.length).length;
+  const last=e.recs.find(r=>r.result); e.lastResult=last?last.result:'';
+}
+const conName = id=>id&&DB.conById[id]?DB.conById[id].name:'';
+const eqLabel = e=>e?`${e.id} · ${e.name}`:'';
+
+/* ====================== ROUTER / LAYOUT ====================== */
+const VIEWS = [
+  {sec:'ภาพรวม'},
+  {k:'dash',t:'แดชบอร์ด',i:'▦'},
+  {k:'equip',t:'ทะเบียนเครื่องจักร',i:'⚙'},
+  {sec:'งานผู้รับเหมา'},
+  {k:'records',t:'ประวัติงานทั้งหมด',i:'☰'},
+  {k:'approve',t:'รอตรวจรับ',i:'✔',cnt:()=>DB.records.filter(r=>r.status==='submitted').length},
+  {k:'plan',t:'แผน/ติดตาม PM',i:'▤'},
+  {k:'reports',t:'รายงานประจำเดือน',i:'▣'},
+  {k:'cons',t:'ผู้รับเหมา & สัญญา',i:'☷'},
+  {sec:'ระบบ'},
+  {k:'quality',t:'คุณภาพข้อมูล',i:'⚠',cnt:()=>DB.issues.filter(i=>i.sev==='bad').length},
+  {k:'settings',t:'ส่งออก / สำรองข้อมูล',i:'⇩'}
+];
+function renderNav(cur){
+  $('#nav').innerHTML=VIEWS.map(v=>v.sec?`<div class="sec">${v.sec}</div>`:
+    `<a href="#${v.k}" class="${cur===v.k?'on':''}"><span>${v.i}</span>${v.t}${v.cnt&&v.cnt()?`<span class="cnt">${v.cnt()}</span>`:''}</a>`).join('');
+}
+/* Navigation: works both as a normal page (URL hash) and inside the Apps Script iframe (in-memory route). */
+let CUR = location.hash.slice(1)||'dash';
+function nav(h){ CUR=h; if(!GAS && location.hash.slice(1)!==h){ location.hash=h; return; } route(); }
+window.addEventListener('hashchange',()=>{ CUR=location.hash.slice(1)||'dash'; if(RAW) route(); });
+document.addEventListener('click',e=>{ const a=e.target.closest&&e.target.closest('a[href^="#"]'); if(a){ e.preventDefault(); nav(a.getAttribute('href').slice(1)); } });
+function route(){
+  const [k,arg]=(CUR||'dash').split('/');
+  renderNav(k); $('#side').classList.remove('on');
+  const fn={dash:vDash,equip:vEquip,eq:vEqCard,records:vRecords,approve:vApprove,plan:vPlan,reports:vReports,cons:vCons,quality:vQuality,settings:vSettings}[k]||vDash;
+  fn(arg?decodeURIComponent(arg):undefined); window.scrollTo(0,0);
+}
+function head(title,sub,actions){
+  return `<div class="top"><button class="btn menu-btn" onclick="document.getElementById('side').classList.toggle('on')">☰</button><div><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:''}</div><div class="sp"></div>${actions||''}</div>`;
+}
+const newBtns = (eqId)=>`<button class="btn pri" onclick="openRecordForm({type:'PM'${eqId?`,equipIds:['${eqId}']`:''}})">+ บันทึก PM</button><button class="btn" onclick="openRecordForm({type:'CM'${eqId?`,equipIds:['${eqId}']`:''}})">+ แจ้งซ่อม/CM</button><button class="btn" onclick="openRecordForm({type:'REPLACE'${eqId?`,equipIds:['${eqId}']`:''}})">+ เปลี่ยนอุปกรณ์</button>`;
+let UI = {year:new Date().getFullYear(), eqF:{q:'',sys:'',cat:'',st:''}, recF:{q:'',type:'',ct:'',con:'',from:'',to:'',sys:''}, recPage:0};
+
+/* ====================== DASHBOARD ====================== */
+function vDash(){
+  const y=String(UI.year), yr=DB.records.filter(r=>(r.date||'').startsWith(y));
+  const pm=yr.filter(r=>r.type==='PM').length, cm=yr.filter(r=>r.type==='CM').length, rp=yr.filter(r=>r.type==='REPLACE'||(r.parts&&r.parts.length)).length;
+  const over=DB.equip.filter(e=>e.nextDue&&e.overdueDays>15);
+  const pend=DB.records.filter(r=>r.status==='submitted').length;
+  const adhocCost=yr.filter(r=>r.contractType==='adhoc').reduce((s,r)=>s+(+r.cost||0),0);
+  const byM=Array.from({length:12},(_,i)=>{const k=y+'-'+pad(i+1);const rs=yr.filter(r=>r.date.startsWith(k));return{pm:rs.filter(r=>r.type==='PM').length,cm:rs.filter(r=>r.type!=='PM').length};});
+  const mx=Math.max(1,...byM.map(m=>Math.max(m.pm,m.cm)));
+  const sys={}; DB.equip.forEach(e=>{const s=sys[e.systemGroup]=sys[e.systemGroup]||{n:0,pm:0,cm:0,over:0}; s.n++; s.over+=(e.nextDue&&e.overdueDays>15)?1:0; e.recs.forEach(r=>{if((r.date||'').startsWith(y)){ if(r.type==='PM')s.pm++; else s.cm++; }});});
+  const bad=DB.equip.map(e=>({e,n:e.recs.filter(r=>r.type!=='PM'&&(r.date||'')>=addMonths(todayISO(),-24)).length})).filter(x=>x.n).sort((a,b)=>b.n-a.n).slice(0,8);
+  const years=[...new Set(DB.records.map(r=>(r.date||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  $('#main').innerHTML=head('แดชบอร์ด',`ข้อมูลเครื่องจักรหลัก ${DB.equip.length} รายการ · ประวัติ ${DB.records.length.toLocaleString()} รายการ`,
+    `<select style="width:auto" onchange="UI.year=+this.value;vDash()">${years.map(x=>`<option value="${x}" ${+x===UI.year?'selected':''}>ปี ${+x+543}</option>`).join('')}</select>${newBtns()}`)+
+  `<div class="grid k4">
+    <div class="kpi"><div class="l">งาน PM ปี ${UI.year+543}</div><div class="v">${pm}</div><div class="h">ครั้ง (บันทึกรายเครื่อง)</div></div>
+    <div class="kpi"><div class="l">งานซ่อม CM / เปลี่ยนอุปกรณ์</div><div class="v">${cm+yr.filter(r=>r.type==='REPLACE').length}</div><div class="h">มีรายการอะไหล่ ${rp} ครั้ง</div></div>
+    <div class="kpi ${over.length?'bad':'ok'}"><div class="l">PM เกินกำหนด (&gt;15 วัน)</div><div class="v">${over.length}</div><div class="h">จาก ${DB.equip.filter(e=>e.nextDue).length} เครื่องที่มีรอบ PM</div></div>
+    <div class="kpi ${pend?'warn':''}"><div class="l">รอตรวจรับงาน</div><div class="v">${pend}</div><div class="h"><a href="#approve">ไปที่หน้าตรวจรับ →</a></div></div>
+    <div class="kpi"><div class="l">ค่าใช้จ่ายงานเฉพาะกิจ ปีนี้</div><div class="v" style="font-size:22px">${money(adhocCost)}</div><div class="h">บาท (จากงานที่บันทึกค่าใช้จ่าย)</div></div>
+  </div>
+  <div class="grid c2" style="margin-top:16px">
+    <div class="card"><h3>จำนวนงานรายเดือน ปี ${UI.year+543}</h3>
+      <div class="legend"><span><i style="background:var(--pm)"></i>PM</span><span><i style="background:var(--cm)"></i>ซ่อม/เปลี่ยนอุปกรณ์</span></div>
+      <div class="bars">${byM.map((m,i)=>`<div class="m" title="${MONTHS[i]}: PM ${m.pm} / CM ${m.cm}"><div class="st"><div class="b" style="height:${m.pm/mx*100}%;background:var(--pm)"></div><div class="b" style="height:${m.cm/mx*100}%;background:var(--cm)"></div></div><div class="lb">${MONTHS[i]}</div></div>`).join('')}</div>
+    </div>
+    <div class="card"><h3>สรุปตามระบบ</h3><div class="tbl-wrap"><table><tr><th>ระบบ</th><th class="num">เครื่อง</th><th class="num">PM</th><th class="num">CM</th><th class="num">เกินกำหนด</th></tr>
+      ${Object.entries(sys).map(([k,s])=>`<tr class="click" onclick="UI.eqF.sys='${esc(k)}';nav('equip')"><td>${esc(SYS_TH[k]||k)}</td><td class="num">${s.n}</td><td class="num">${s.pm}</td><td class="num">${s.cm}</td><td class="num">${s.over?`<span class="badge b-bad">${s.over}</span>`:'0'}</td></tr>`).join('')}</table></div></div>
+  </div>
+  <div class="grid c2">
+    <div class="card"><h3>PM เกินกำหนด (เรียงจากนานที่สุด)</h3>${over.length?`<div class="tbl-wrap" style="max-height:330px"><table><tr><th>เครื่อง</th><th>รอบ</th><th>PM ล่าสุด</th><th class="num">เกิน (วัน)</th></tr>${over.sort((a,b)=>b.overdueDays-a.overdueDays).slice(0,30).map(e=>`<tr class="click" onclick="nav('eq/${encodeURIComponent(e.id)}')"><td><b>${esc(e.id)}</b> <span class="muted small">${esc(e.category)}</span></td><td>${e.baseFreq} ด.</td><td>${fdate(e.lastPM)}</td><td class="num"><span class="badge b-bad">${e.overdueDays}</span></td></tr>`).join('')}</table></div>`:'<div class="empty">ไม่มีเครื่องที่เกินกำหนด</div>'}</div>
+    <div class="card"><h3>เครื่องที่ซ่อมบ่อย (24 เดือนล่าสุด)</h3>${bad.length?`<div class="tbl-wrap"><table><tr><th>เครื่อง</th><th>ประเภท</th><th class="num">ครั้ง</th></tr>${bad.map(x=>`<tr class="click" onclick="nav('eq/${encodeURIComponent(x.e.id)}')"><td><b>${esc(x.e.id)}</b></td><td>${esc(x.e.category)}</td><td class="num"><span class="badge b-cm">${x.n}</span></td></tr>`).join('')}</table></div>`:'<div class="empty">ไม่มีข้อมูลงานซ่อม</div>'}</div>
+  </div>
+  <div class="card"><h3>งานล่าสุด</h3>${recTable(DB.records.filter(r=>r.date).slice(0,12),true)}</div>`;
+}
+
+/* ====================== EQUIPMENT LIST ====================== */
+function vEquip(){
+  const f=UI.eqF, sysList=[...new Set(DB.equip.map(e=>e.systemGroup))], catList=[...new Set(DB.equip.filter(e=>!f.sys||e.systemGroup===f.sys).map(e=>e.category))];
+  let L=DB.equip.filter(e=>(!f.sys||e.systemGroup===f.sys)&&(!f.cat||e.category===f.cat));
+  if(f.q){const q=f.q.toLowerCase(); L=L.filter(e=>[e.id,e.unit,e.name,e.category,e.info['Code Number'],e.info.Location,e.tech.Brand,e.tech.Model].join(' ').toLowerCase().includes(q));}
+  if(f.st==='over') L=L.filter(e=>e.nextDue&&e.overdueDays>15);
+  if(f.st==='nofreq') L=L.filter(e=>!e.baseFreq);
+  $('#main').innerHTML=head('ทะเบียนเครื่องจักรหลัก',`${L.length} รายการ · คลิกเพื่อดูประวัติเครื่อง`,newBtns())+
+  `<div class="toolbar"><input placeholder="ค้นหา รหัส / ชื่อ / ยี่ห้อ / รุ่น / รหัสครุภัณฑ์" value="${esc(f.q)}" oninput="UI.eqF.q=this.value;clearTimeout(window._t);window._t=setTimeout(vEquipKeep,250)" id="eqq" style="min-width:280px">
+   <select onchange="UI.eqF.sys=this.value;UI.eqF.cat='';vEquip()"><option value="">ทุกระบบ</option>${sysList.map(s=>`<option value="${esc(s)}" ${f.sys===s?'selected':''}>${esc(SYS_TH[s]||s)}</option>`).join('')}</select>
+   <select onchange="UI.eqF.cat=this.value;vEquip()"><option value="">ทุกประเภท</option>${catList.map(s=>`<option ${f.cat===s?'selected':''}>${esc(s)}</option>`).join('')}</select>
+   <select onchange="UI.eqF.st=this.value;vEquip()"><option value="">ทุกสถานะ</option><option value="over" ${f.st==='over'?'selected':''}>PM เกินกำหนด</option><option value="nofreq" ${f.st==='nofreq'?'selected':''}>ยังไม่มีรอบ PM</option></select></div>
+  <div class="tbl-wrap"><table><tr><th>รหัส</th><th>ชื่อเครื่องจักร</th><th>ระบบ / ประเภท</th><th>ตำแหน่ง</th><th>ผู้รับเหมาประจำ</th><th>รอบ PM</th><th>PM ล่าสุด</th><th>ครบกำหนดถัดไป</th><th class="num">ซ่อม</th></tr>
+  ${L.map(e=>`<tr class="click" onclick="nav('eq/${encodeURIComponent(e.id)}')"><td><b>${esc(e.id)}</b></td><td>${esc(e.name)}</td><td>${esc(SYS_TH[e.systemGroup]||e.systemGroup)}<div class="muted small">${esc(e.category)}</div></td><td>${esc([e.info.Floor,e.info.Zone].filter(Boolean).join(' · ')||'–')}<div class="muted small">${esc(e.info.Location||'')}</div></td><td>${esc((DB.conById[e.contractorId]||{}).short||'–')}</td><td>${e.baseFreq?e.baseFreq+' เดือน':'<span class="muted">–</span>'}</td><td>${fdate(e.lastPM)}</td><td>${e.nextDue?`${fdate(e.nextDue)} ${e.overdueDays>15?`<span class="badge b-bad">เกิน ${e.overdueDays} ว.</span>`:e.overdueDays>-15?'<span class="badge b-warn">ใกล้ถึง</span>':''}`:'–'}</td><td class="num">${e.cmCount||''}</td></tr>`).join('')}</table></div>`;
+}
+function vEquipKeep(){const pos=$('#eqq').selectionStart;vEquip();const i=$('#eqq');i.focus();i.setSelectionRange(pos,pos);}
+
+/* ====================== EQUIPMENT CARD ====================== */
+function vEqCard(id){
+  const e=DB.eqById[id]; if(!e){nav('equip');return;}
+  const tab=UI.eqTab||'all';
+  const recs=e.recs.filter(r=>tab==='all'||(tab==='PM'?r.type==='PM':tab==='CM'?r.type!=='PM':tab==='parts'?(r.parts&&r.parts.length):true));
+  const iss=DB.issues.filter(i=>i.eq===id);
+  const intervals=e.recs.filter(r=>r.type!=='PM'&&r.date).map(r=>r.date).sort(); let mtbf='';
+  if(intervals.length>1){ mtbf=Math.round(daysBetween(intervals[0],intervals[intervals.length-1])/(intervals.length-1)); }
+  $('#main').innerHTML=head(`${esc(e.id)} <span class="muted" style="font-weight:400;font-size:17px">${esc(e.name)}</span>`,`<a href="#equip">← ทะเบียนเครื่องจักร</a> · ${esc(SYS_TH[e.systemGroup]||e.systemGroup)} / ${esc(e.category)}`,
+    newBtns(e.id)+`<button class="btn" onclick="exportEquipXlsx('${esc(e.id)}')">⇩ Excel (แบบฟอร์มเดิม)</button>`)+
+  (iss.length?`<div class="card" style="border-color:var(--warn)"><b>⚠ ข้อมูลต้นฉบับควรตรวจสอบ</b><ul style="margin:6px 0 0;padding-left:20px">${iss.map(i=>`<li>${esc(i.kind)} — <span class="muted">${esc(i.detail)}</span></li>`).join('')}</ul></div>`:'')+
+  `<div class="grid k4">
+    <div class="kpi"><div class="l">รอบ PM หลัก</div><div class="v">${e.baseFreq?e.baseFreq+' <small style="font-size:14px">เดือน</small>':'–'}</div><div class="h"><a href="javascript:setFreq('${esc(e.id)}')">ปรับรอบ</a></div></div>
+    <div class="kpi"><div class="l">PM ล่าสุด</div><div class="v" style="font-size:20px">${fdateLong(e.lastPM)}</div></div>
+    <div class="kpi ${e.overdueDays>15?'bad':''}"><div class="l">ครบกำหนดถัดไป</div><div class="v" style="font-size:20px">${fdateLong(e.nextDue)}</div><div class="h">${e.nextDue?(e.overdueDays>0?`เกินมา ${e.overdueDays} วัน`:`อีก ${-e.overdueDays} วัน`):''}</div></div>
+    <div class="kpi"><div class="l">ซ่อม / เปลี่ยนอะไหล่</div><div class="v">${e.cmCount} / ${e.partsCount}</div><div class="h">${mtbf?`เฉลี่ยห่างกัน ~${mtbf} วัน/ครั้ง`:''}</div></div>
+  </div>
+  <div class="grid c2" style="margin-top:16px">
+    <div class="card"><h3>ข้อมูลทะเบียน (Equipment Register)</h3><div class="dl">
+      ${[['รหัสเครื่องจักร',e.info['Code Number']],['หมายเลข (ในชีท)',e.info['Unit Number']],['ระบบ',e.info.System],['สถานที่ตั้ง',e.info.Location],['อาคาร',e.info.Building],['ชั้น',e.info.Floor],['โซน',e.info.Zone],['แผนก',e.info.Depart],['ผู้รับเหมาประจำ',conName(e.contractorId)]].map(([k,v])=>`<div><b>${k}</b><span>${esc(v||'–')}</span></div>`).join('')}</div></div>
+    <div class="card"><h3>ข้อมูลทางเทคนิค (Technical Data)</h3><div class="dl">${Object.entries(e.tech).filter(([k,v])=>v).map(([k,v])=>`<div><b>${esc(k)}</b><span>${esc(v)}</span></div>`).join('')||'<span class="muted">ไม่มีข้อมูล</span>'}</div></div>
+  </div>
+  <div class="card"><div class="tabs">${[['all','ทั้งหมด',e.recs.length],['PM','บำรุงรักษา PM',e.recs.filter(r=>r.type==='PM').length],['CM','ซ่อม / เปลี่ยนอุปกรณ์',e.cmCount],['parts','ประวัติอะไหล่',e.partsCount]].map(([k,t,n])=>`<button class="${tab===k?'on':''}" onclick="UI.eqTab='${k}';vEqCard('${esc(e.id)}')">${t} (${n})</button>`).join('')}</div>
+   ${tab==='parts'?partsTable(recs):recs.length?`<div class="timeline">${recs.map(tlItem).join('')}</div>`:'<div class="empty">ยังไม่มีประวัติ</div>'}</div>`;
+}
+function tlItem(r){
+  const parts=(r.parts||[]).filter(p=>p.name).map(p=>`${p.code?p.code+' ':''}${p.name}${p.qty?' ×'+p.qty:''}`).join(', ');
+  return `<div class="ti ${r.type}"><div class="hd"><b>${fdateLong(r.date)||esc(r.rawDate)}</b>${badge(TYPE,r.type)}${r.task?`<span class="badge b-gray">${esc(r.task)}</span>`:''}${r.contractType==='adhoc'?badge(CTYPE,'adhoc'):''}${r.result?badge(RESULT,r.result):''}${r.seed?'':badge(STATUS,r.status)}<span class="muted">${esc(conName(r.contractorId)||'')}${r.by?' · '+esc(r.by):''}</span><span class="sp" style="flex:1"></span><button class="btn sm ghost" onclick="openRecordForm({id:'${r.id}'})">แก้ไข</button></div>
+  <div class="bd">${r.cause?`<b>สาเหตุ:</b> ${esc(r.cause)}\n`:''}${esc(r.remark||'')}${parts?`\n<b>อะไหล่:</b> ${esc(parts)}`:''}${r.recommend?`\n<b>ข้อเสนอแนะ:</b> ${esc(r.recommend)}`:''}${r.cost?`\n<b>ค่าใช้จ่าย:</b> ${money(r.cost)} บาท ${r.ref?'('+esc(r.ref)+')':''}`:''}${r.finishDate?`\n<span class="muted">แล้วเสร็จ ${fdateLong(r.finishDate)}${r.job?' · ใบแจ้งซ่อม '+esc(r.job):''}</span>`:''}${r.link?`\n<a href="${esc(r.link)}" target="_blank" rel="noopener">📎 เอกสาร/รูปภาพ</a>`:''}</div></div>`;
+}
+function partsTable(recs){
+  const rows=[]; recs.forEach(r=>(r.parts||[]).forEach(p=>{ if(p.name) rows.push({r,p}); }));
+  if(!rows.length) return '<div class="empty">ไม่มีประวัติการเปลี่ยนอะไหล่</div>';
+  return `<div class="tbl-wrap"><table><tr><th>วันที่</th><th>ประเภทงาน</th><th>รหัสอะไหล่</th><th>รายการ</th><th class="num">จำนวน</th><th>ในสัญญา?</th><th>ผู้ดำเนินการ</th></tr>${rows.map(({r,p})=>`<tr><td>${fdate(r.date)}</td><td>${badge(TYPE,r.type)}</td><td>${esc(p.code||'–')}</td><td>${esc(p.name)}</td><td class="num">${esc(p.qty||'')} ${esc(p.unit||'')}</td><td>${p.inContract===true?'<span class="badge b-ok">ในสัญญา</span>':p.inContract===false?'<span class="badge b-warn">นอกสัญญา</span>':'–'}</td><td>${esc(conName(r.contractorId)||r.by||'')}</td></tr>`).join('')}</table></div>`;
+}
+function setFreq(id){
+  const v=prompt('รอบ PM หลักของ '+id+' (เดือน: 1, 2, 3, 6, 12) — เว้นว่างเพื่อคำนวณอัตโนมัติ', DB.eqById[id].baseFreq||'');
+  if(v===null) return; if(v==='') Store.setSetting('freq:'+id,''); else if(+v>0) Store.setSetting('freq:'+id,+v); else return; buildDB(); route();
+}
+
+/* ====================== RECORDS LIST ====================== */
+function recTable(L,compact){
+  if(!L.length) return '<div class="empty">ไม่พบรายการ</div>';
+  return `<div class="tbl-wrap"><table><tr><th>วันที่</th><th>เครื่อง</th><th>ประเภท</th><th>ผู้รับเหมา / ช่าง</th><th>รายละเอียด</th>${compact?'':'<th>ผลหลังทำงาน</th><th>สถานะ</th>'}</tr>
+  ${L.map(r=>{const e=DB.eqById[r.equipId];return `<tr class="click" onclick="openRecordForm({id:'${r.id}'})"><td style="white-space:nowrap">${fdate(r.date)||'<span class="badge b-bad">'+esc(r.rawDate||'?')+'</span>'}</td><td><b>${esc(r.equipId)}</b>${compact?'':`<div class="muted small">${esc(e?e.category:'')}</div>`}</td><td>${badge(TYPE,r.type)} ${r.task?`<span class="badge b-gray">${esc(r.task)}</span>`:''} ${r.contractType==='adhoc'?badge(CTYPE,'adhoc'):''}</td><td>${esc((DB.conById[r.contractorId]||{}).short||'')}<div class="muted small">${esc(r.by||'')}</div></td><td style="max-width:420px">${esc(((r.cause?r.cause+' → ':'')+(r.remark||'')).slice(0,140))}${(r.parts||[]).some(p=>p.name)?` <span class="badge b-rp">อะไหล่</span>`:''}</td>${compact?'':`<td>${r.result?badge(RESULT,r.result):'–'}</td><td>${r.seed?'<span class="badge b-gray">นำเข้า</span>':badge(STATUS,r.status)}</td>`}</tr>`;}).join('')}</table></div>`;
+}
+function filteredRecords(){
+  const f=UI.recF; let L=DB.records;
+  if(f.type) L=L.filter(r=>r.type===f.type);
+  if(f.ct) L=L.filter(r=>r.contractType===f.ct);
+  if(f.con) L=L.filter(r=>f.con==='none'?!r.contractorId:r.contractorId===f.con);
+  if(f.sys) L=L.filter(r=>(DB.eqById[r.equipId]||{}).systemGroup===f.sys);
+  if(f.from) L=L.filter(r=>r.date>=f.from); if(f.to) L=L.filter(r=>r.date&&r.date<=f.to);
+  if(f.q){const q=f.q.toLowerCase(); L=L.filter(r=>[r.equipId,r.by,r.remark,r.cause,r.job,r.ref,(r.parts||[]).map(p=>p.name).join(' '),conName(r.contractorId)].join(' ').toLowerCase().includes(q));}
+  return L;
+}
+function vRecords(){
+  const f=UI.recF, L=filteredRecords(), per=100, pg=Math.min(UI.recPage,Math.max(0,Math.ceil(L.length/per)-1));
+  $('#main').innerHTML=head('ประวัติงานผู้รับเหมาทั้งหมด',`${L.length.toLocaleString()} รายการ`,`${newBtns()}<button class="btn" onclick="exportRecordsXlsx()">⇩ Excel (ตามตัวกรอง)</button>`)+
+  `<div class="toolbar"><input id="rq" placeholder="ค้นหา เครื่อง / ช่าง / อาการ / อะไหล่ / เลขที่" value="${esc(f.q)}" oninput="UI.recF.q=this.value;UI.recPage=0;clearTimeout(window._t);window._t=setTimeout(()=>{const p=this.selectionStart;vRecords();const i=$('#rq');i.focus();i.setSelectionRange(p,p)},250)" style="min-width:260px">
+  <select onchange="UI.recF.type=this.value;UI.recPage=0;vRecords()"><option value="">ทุกประเภทงาน</option>${Object.entries(TYPE).map(([k,v])=>`<option value="${k}" ${f.type===k?'selected':''}>${v.t}</option>`).join('')}</select>
+  <select onchange="UI.recF.ct=this.value;UI.recPage=0;vRecords()"><option value="">ประจำ + เฉพาะกิจ</option>${Object.entries(CTYPE).map(([k,v])=>`<option value="${k}" ${f.ct===k?'selected':''}>${v.t}</option>`).join('')}</select>
+  <select onchange="UI.recF.con=this.value;UI.recPage=0;vRecords()"><option value="">ทุกผู้รับเหมา</option><option value="none" ${f.con==='none'?'selected':''}>(ยังไม่ระบุผู้รับเหมา)</option>${DB.contractors.map(c=>`<option value="${c.id}" ${f.con===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+  <select onchange="UI.recF.sys=this.value;UI.recPage=0;vRecords()"><option value="">ทุกระบบ</option>${Object.keys(SYS_TH).map(s=>`<option value="${s}" ${f.sys===s?'selected':''}>${SYS_TH[s]}</option>`).join('')}</select>
+  <input type="date" value="${f.from}" onchange="UI.recF.from=this.value;vRecords()" title="ตั้งแต่"><input type="date" value="${f.to}" onchange="UI.recF.to=this.value;vRecords()" title="ถึง"></div>`+
+  recTable(L.slice(pg*per,pg*per+per))+
+  (L.length>per?`<div class="toolbar" style="margin-top:10px"><button class="btn sm" ${pg?'':'disabled'} onclick="UI.recPage=${pg-1};vRecords()">← ก่อนหน้า</button><span class="muted">หน้า ${pg+1} / ${Math.ceil(L.length/per)}</span><button class="btn sm" ${(pg+1)*per<L.length?'':'disabled'} onclick="UI.recPage=${pg+1};vRecords()">ถัดไป →</button></div>`:'');
+}
+
+/* ====================== RECORD FORM ====================== */
+let F=null; // form state
+function openRecordForm(o){
+  if(o.id){ const r=DB.recById[o.id]; F=JSON.parse(JSON.stringify(r)); F.equipIds=[r.equipId]; F._edit=true; }
+  else F={type:o.type||'PM',contractType:o.contractType||'regular',contractorId:o.contractorId||'',equipIds:o.equipIds||[],date:o.date||todayISO(),finishDate:'',task:'',by:'',job:'',round:o.round||'',ref:'',cost:'',warranty:'',cause:'',remark:'',recommend:'',result:'normal',parts:[],link:o.link||'',inspector:'',status:'draft',reportId:o.reportId||''};
+  if(!F.contractorId && F.equipIds.length){ const e=DB.eqById[F.equipIds[0]]; if(e&&e.contractorId&&F.contractType==='regular') F.contractorId=e.contractorId; }
+  if(F.type==='PM'&&!F.task&&F.equipIds.length){ const e=DB.eqById[F.equipIds[0]]; const t=Object.entries(TASKS).find(([k,v])=>v.m===(e&&e.baseFreq)); if(t) F.task=t[0]; }
+  renderForm();
+}
+function renderForm(){
+  const isPM=F.type==='PM', isAd=F.contractType==='adhoc', ro=F.seed&&!F._unlock;
+  const cons=DB.contractors.filter(c=>c.type===F.contractType||c.id===F.contractorId);
+  const wf=['draft','submitted','approved'];
+  $('#modal').innerHTML=`<div class="mh"><h2>${F._edit?'รายละเอียดงาน':'บันทึกงานผู้รับเหมา'} ${badge(TYPE,F.type)}</h2>${F.seed?'<span class="badge b-gray">นำเข้าจาก Excel เดิม</span>':`<div class="wf">${wf.map((s,i)=>`${i?'<i>›</i>':''}<span class="${F.status===s||(F.status==='rejected'&&s==='draft')?'on':''}">${STATUS[s].t}</span>`).join('')}</div>`}<button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="mb"><fieldset ${ro?'disabled':''} style="border:0;padding:0;margin:0">
+   ${F.status==='rejected'&&F.rejectNote?`<div class="card" style="border-color:var(--bad)"><b>ตีกลับ:</b> ${esc(F.rejectNote)}</div>`:''}
+   <div class="fg">
+    <label class="f"><span>ประเภทงาน <span class="req">*</span></span><div class="seg">${Object.entries(TYPE).map(([k,v])=>`<button type="button" class="${F.type===k?'on':''}" onclick="F.type='${k}';renderForm()">${v.t}</button>`).join('')}</div></label>
+    <label class="f"><span>ลักษณะผู้รับเหมา <span class="req">*</span></span><div class="seg">${Object.entries(CTYPE).map(([k,v])=>`<button type="button" class="${F.contractType===k?'on':''}" onclick="F.contractType='${k}';F.contractorId='';renderForm()">${v.t}</button>`).join('')}</div></label>
+   </div>
+   <div class="fg">
+    <label class="f"><span>ผู้รับเหมา <span class="req">*</span></span><div style="display:flex;gap:6px"><select onchange="F.contractorId=this.value"><option value="">— เลือก —</option>${cons.map(c=>`<option value="${c.id}" ${F.contractorId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select><button type="button" class="btn sm" title="เพิ่มผู้รับเหมาใหม่" onclick="quickAddContractor()">+</button></div></label>
+    ${isAd?`<label class="f"><span>เลขที่ใบเสนอราคา / PO <span class="req">*</span></span><input value="${esc(F.ref)}" oninput="F.ref=this.value" placeholder="เช่น QT-6911-021"></label>
+      <label class="f"><span>ค่าใช้จ่าย (บาท)</span><input type="number" min="0" value="${esc(F.cost)}" oninput="F.cost=this.value"></label>
+      <label class="f"><span>รับประกันงาน (เดือน)</span><input type="number" min="0" value="${esc(F.warranty)}" oninput="F.warranty=this.value"></label>`
+     :`<label class="f"><span>รอบที่ตามสัญญา (ครั้งที่)</span><input type="number" min="1" value="${esc(F.round)}" oninput="F.round=this.value"></label>`}
+   </div>
+   <label class="f"><span>เครื่องจักร <span class="req">*</span> ${F._edit?'':'<span class="muted">(เลือกได้หลายเครื่อง — ระบบจะแยกบันทึกให้ทุกเครื่อง)</span>'}</span>
+    ${F._edit?`<b>${esc(eqLabel(DB.eqById[F.equipId]))}</b>`:`<div class="picker"><input id="eqpick" placeholder="พิมพ์รหัส/ชื่อเครื่อง เช่น Gen, CH-01, SWP" oninput="pickEq(this.value)" onfocus="pickEq(this.value)" autocomplete="off"><div class="dd" id="eqdd"></div></div>
+     <div class="chips">${F.equipIds.map(id=>`<span class="chip">${esc(id)}<button type="button" onclick="F.equipIds=F.equipIds.filter(x=>x!=='${esc(id)}');renderForm()">×</button></span>`).join('')}${F.equipIds.length?`<button type="button" class="btn sm ghost" onclick="addSameCat()">+ ทั้งกลุ่มเดียวกัน</button>`:''}</div>`}</label>
+   <div class="fg">
+    ${isPM?`<label class="f"><span>รอบ PM <span class="req">*</span></span><select onchange="F.task=this.value"><option value="">— เลือก —</option>${Object.entries(TASKS).map(([k,v])=>`<option value="${k}" ${F.task===k?'selected':''}>${k} · ${v.t}</option>`).join('')}</select></label>`
+     :`<label class="f"><span>เลขที่ใบแจ้งซ่อม (Job/WR No.)</span><input value="${esc(F.job)}" oninput="F.job=this.value"></label>`}
+    <label class="f"><span>${isPM?'วันที่เข้าทำ PM':'วันที่แจ้งซ่อม / เริ่มงาน'} <span class="req">*</span></span><input type="date" value="${esc(F.date)}" onchange="F.date=this.value"></label>
+    <label class="f"><span>วันที่แล้วเสร็จ</span><input type="date" value="${esc(F.finishDate||'')}" onchange="F.finishDate=this.value"></label>
+    <label class="f"><span>ช่างผู้ปฏิบัติงาน</span><input value="${esc(F.by)}" oninput="F.by=this.value" placeholder="ชื่อช่างของผู้รับเหมา"></label>
+   </div>
+   ${isPM?'':`<label class="f"><span>อาการเสีย / สาเหตุ ${F.type==='CM'?'<span class="req">*</span>':''}</span><textarea oninput="F.cause=this.value">${esc(F.cause)}</textarea></label>`}
+   <label class="f"><span>${isPM?'ผลการตรวจ / รายละเอียดงานที่ทำ':'การดำเนินการแก้ไข'} <span class="req">*</span></span><textarea oninput="F.remark=this.value">${esc(F.remark)}</textarea></label>
+   <div class="section-t">รายการอะไหล่ / อุปกรณ์ที่เปลี่ยน ${F.type==='REPLACE'?'<span class="req">*</span>':''}</div>
+   <div class="tbl-wrap"><table><tr><th style="width:130px">รหัสอะไหล่</th><th>รายการ</th><th style="width:80px">จำนวน</th><th style="width:80px">หน่วย</th><th style="width:130px">ในสัญญา?</th><th style="width:40px"></th></tr>
+    ${F.parts.map((p,i)=>`<tr><td><input value="${esc(p.code||'')}" oninput="F.parts[${i}].code=this.value"></td><td><input value="${esc(p.name||'')}" oninput="F.parts[${i}].name=this.value"></td><td><input value="${esc(p.qty||'')}" oninput="F.parts[${i}].qty=this.value"></td><td><input value="${esc(p.unit||'')}" oninput="F.parts[${i}].unit=this.value"></td><td><select onchange="F.parts[${i}].inContract=this.value===''?null:this.value==='1'"><option value="">–</option><option value="1" ${p.inContract===true?'selected':''}>ในสัญญา</option><option value="0" ${p.inContract===false?'selected':''}>นอกสัญญา</option></select></td><td><button type="button" class="btn sm ghost" onclick="F.parts.splice(${i},1);renderForm()">✕</button></td></tr>`).join('')}
+   </table></div><button type="button" class="btn sm" style="margin:8px 0 4px" onclick="F.parts.push({code:'',name:'',qty:'1',unit:'',inContract:${isAd?'false':'null'}});renderForm()">+ เพิ่มรายการอะไหล่</button>
+   <div class="section-t">ผลหลังดำเนินการ</div>
+   <div class="fg">
+    <label class="f"><span>สถานะเครื่องหลังทำงาน</span><div class="seg">${Object.entries(RESULT).map(([k,v])=>`<button type="button" class="${F.result===k?'on':''}" onclick="F.result='${k}';renderForm()">${v.t}</button>`).join('')}</div></label>
+    <label class="f"><span>ลิงก์รายงาน / รูปภาพ (Google Drive)</span><input value="${esc(F.link)}" oninput="F.link=this.value" placeholder="https://drive.google.com/..."></label>
+   </div>
+   <label class="f"><span>ข้อเสนอแนะจากผู้รับเหมา (เช่น ควรตั้งงบ Overhaul)</span><textarea oninput="F.recommend=this.value">${esc(F.recommend||'')}</textarea></label>
+   <label class="f" style="max-width:360px"><span>ผู้ตรวจรับงาน (ฝ่ายอาคาร)</span><input value="${esc(F.inspector||'')}" oninput="F.inspector=this.value"></label>
+  </fieldset>
+  ${F.approvedBy?`<div class="muted small">ตรวจรับโดย ${esc(F.approvedBy)} เมื่อ ${esc(F.approvedAt||'')}</div>`:''}
+  </div>
+  <div class="mf">${ro?`<span class="muted small" style="margin-right:auto">ข้อมูลนำเข้าจากไฟล์ Excel เดิม (อ่านอย่างเดียว)</span><button class="btn" onclick="F._unlock=true;renderForm()">ปลดล็อกเพื่อแก้ไข</button>`:
+   `${F._edit?`<button class="btn bad" style="margin-right:auto" onclick="deleteRecord()">ลบ</button>`:''}<button class="btn" onclick="closeModal()">ยกเลิก</button>${F.seed?'':`<button class="btn" onclick="saveRecord('draft')">บันทึกร่าง</button>`}<button class="btn pri" onclick="saveRecord('${F.seed?'approved':'submitted'}')">${F.seed?'บันทึกการแก้ไข':'ส่งตรวจรับ'}</button>`}</div>`;
+  $('#mbg').classList.add('on');
+}
+function pickEq(q){
+  q=(q||'').toLowerCase(); const dd=$('#eqdd');
+  const L=DB.equip.filter(e=>!F.equipIds.includes(e.id)&&(!q||(e.id+' '+e.name+' '+e.category).toLowerCase().includes(q))).slice(0,40);
+  dd.innerHTML=L.map(e=>`<div onmousedown="F.equipIds.push('${esc(e.id)}');if(!F.contractorId&&F.contractType==='regular')F.contractorId=DB.eqById['${esc(e.id)}'].contractorId||'';renderForm();setTimeout(()=>$('#eqpick').focus(),0)"><b>${esc(e.id)}</b> <span class="muted">${esc(e.name)}</span></div>`).join('')||'<div class="muted">ไม่พบ</div>';
+  dd.classList.add('on'); $('#eqpick').onblur=()=>setTimeout(()=>dd.classList.remove('on'),150);
+}
+function addSameCat(){ const cats=new Set(F.equipIds.map(id=>DB.eqById[id].category)); DB.equip.forEach(e=>{ if(cats.has(e.category)&&!F.equipIds.includes(e.id)) F.equipIds.push(e.id); }); renderForm(); }
+function closeModal(){ $('#mbg').classList.remove('on'); F=null; }
+function saveRecord(status){
+  const err=[];
+  if(!F.contractorId && !F.seed) err.push('ผู้รับเหมา');
+  if(!F.equipIds.length) err.push('เครื่องจักร');
+  if(!F.date) err.push('วันที่');
+  if(F.type==='PM'&&!F.task) err.push('รอบ PM');
+  if(F.type==='CM'&&!F.cause&&!F.seed) err.push('อาการ/สาเหตุ');
+  if(!F.remark&&!F.seed) err.push('รายละเอียดงาน');
+  if(F.contractType==='adhoc'&&!F.ref&&!F.seed) err.push('เลขที่ใบเสนอราคา/PO');
+  F.parts=F.parts.filter(p=>p.name||p.code);
+  if(F.type==='REPLACE'&&!F.parts.length) err.push('รายการอุปกรณ์ที่เปลี่ยน');
+  if(status!=='draft'&&err.length){ alert('กรุณากรอก: '+err.join(', ')); return; }
+  const base=Object.assign({},F); delete base._edit; delete base._unlock; delete base.equipIds;
+  base.status=status; base.updatedAt=new Date().toISOString();
+  const list=[];
+  if(F._edit){ list.push(Object.assign(base,{equipId:F.equipId})); }
+  else { const g=uid('g'); F.equipIds.forEach(eid=>{ const id=uid('r'); list.push(Object.assign({},base,{id,equipId:eid,groupId:g,createdAt:base.updatedAt,parts:JSON.parse(JSON.stringify(base.parts))})); }); }
+  const msg=status==='draft'?'บันทึกร่างแล้ว':F.seed?'บันทึกการแก้ไขแล้ว':F._edit?'ส่งตรวจรับแล้ว':`บันทึก ${F.equipIds.length} เครื่องแล้ว — ส่งตรวจรับ`;
+  Store.putRecords(list); buildDB(); closeModal(); route(); toast(msg);
+}
+function deleteRecord(){
+  if(!confirm(GAS?'ลบรายการนี้ออกจาก Google Sheets? (ย้อนกลับไม่ได้ — ใช้ประวัติเวอร์ชันของชีทถ้าต้องกู้คืน)':'ลบรายการนี้? (ลบเฉพาะในระบบนี้ ไม่กระทบไฟล์ Excel ต้นฉบับ)')) return;
+  Store.delRecord(F); buildDB(); closeModal(); route(); toast('ลบแล้ว');
+}
+function quickAddContractor(){
+  const n=prompt('ชื่อผู้รับเหมา'+(F.contractType==='adhoc'?' (เฉพาะกิจ)':' (ประจำ)')); if(!n) return;
+  const c={id:uid('c'),name:n.trim(),short:n.trim(),type:F.contractType,scope:'',cats:[],freq:''}; Store.putContractor(c); buildDB(); F.contractorId=c.id; renderForm();
+}
+
+/* ====================== APPROVALS ====================== */
+function vApprove(){
+  const L=DB.records.filter(r=>r.status==='submitted'), D=DB.records.filter(r=>!r.seed&&(r.status==='draft'||r.status==='rejected'));
+  $('#main').innerHTML=head('ตรวจรับงานผู้รับเหมา',`รอตรวจรับ ${L.length} · ร่าง/ตีกลับ ${D.length}`,'')+
+  `<div class="card"><h3>รอตรวจรับ</h3>${L.length?`<div class="toolbar"><input id="apby" placeholder="ชื่อผู้ตรวจรับ" value="${esc(RAW.settings.approver||'')}" style="max-width:240px"><button class="btn ok" onclick="approveAll()">ตรวจรับทั้งหมด (${L.length})</button></div>`+`<div class="timeline">${L.map(r=>`<div style="display:flex;gap:6px;align-items:center;margin:0 0 4px"><a href="#eq/${encodeURIComponent(r.equipId)}"><b>${esc(r.equipId)}</b></a><span class="muted small">${esc((DB.eqById[r.equipId]||{}).name||'')}</span><span style="flex:1"></span><button class="btn sm ok" onclick="approve('${r.id}',true)">ตรวจรับ</button><button class="btn sm bad" onclick="approve('${r.id}',false)">ตีกลับ</button></div>${tlItem(r)}`).join('')}</div>`:'<div class="empty">ไม่มีงานรอตรวจรับ</div>'}</div>
+  <div class="card"><h3>ร่าง / ตีกลับแก้ไข</h3>${recTable(D)}</div>`;
+}
+function approve(id,ok){
+  const by=($('#apby')||{}).value||''; if(ok&&!by){alert('กรอกชื่อผู้ตรวจรับก่อน');return;}
+  const r=Object.assign({},DB.recById[id]);
+  if(ok){ r.status='approved'; r.approvedBy=by; r.approvedAt=new Date().toLocaleString('th-TH'); }
+  else { const n=prompt('เหตุผลที่ตีกลับ'); if(n===null) return; r.status='rejected'; r.rejectNote=n; }
+  if(ok&&by!==RAW.settings.approver) Store.setSetting('approver',by);
+  r.updatedAt=new Date().toISOString(); Store.putRecords([r]); buildDB(); route();
+}
+function approveAll(){ const by=$('#apby').value; if(!by){alert('กรอกชื่อผู้ตรวจรับก่อน');return;} if(!confirm('ตรวจรับทั้งหมด?'))return;
+  if(by!==RAW.settings.approver) Store.setSetting('approver',by);
+  const now=new Date(), list=DB.records.filter(r=>r.status==='submitted').map(r=>Object.assign({},r,{status:'approved',approvedBy:by,approvedAt:now.toLocaleString('th-TH'),updatedAt:now.toISOString()}));
+  Store.putRecords(list); buildDB(); route(); }
+
+/* ====================== PM PLAN / COMPLIANCE ====================== */
+function vPlan(){
+  const y=UI.year, cur=todayISO().slice(0,7), sysF=UI.planSys||'';
+  const L=DB.equip.filter(e=>!sysF||e.systemGroup===sysF);
+  let exp=0, done=0;
+  const rows=L.map(e=>{
+    const pms=e.recs.filter(r=>r.type==='PM'&&r.date&&r.status!=='rejected');
+    const first=pms.length?pms.map(r=>r.date).sort()[0]:'';
+    const cells=MONTHS.map((_,i)=>{
+      const ym=y+'-'+pad(i+1), here=pms.filter(r=>r.date.startsWith(ym)), cm=e.recs.filter(r=>r.type!=='PM'&&(r.date||'').startsWith(ym)).length;
+      let expected=false;
+      if(e.baseFreq&&first&&ym>=first.slice(0,7)&&ym<=cur){ const fm=(+first.slice(0,4))*12+(+first.slice(5,7)-1), m=y*12+i; expected=((m-fm)%e.baseFreq)===0; }
+      if(expected){ exp++; if(here.length) done++; }
+      const t=[...new Set(here.map(r=>r.task||'PM'))].join(',');
+      return here.length?`<span class="cell c-done" title="${esc(here.map(r=>fdate(r.date)+' '+(r.task||'')).join('\n'))}">${esc(t)}</span>${cm?'<span class="cell c-cm">C</span>':''}`:expected?`<span class="cell c-miss" title="ครบรอบแต่ไม่มีบันทึก">ขาด</span>${cm?'<span class="cell c-cm">C</span>':''}`:cm?'<span class="cell c-cm">C</span>':'<span class="c-na">·</span>';
+    });
+    return `<tr><td><a href="#eq/${encodeURIComponent(e.id)}"><b>${esc(e.id)}</b></a> <span class="muted small">${e.baseFreq?e.baseFreq+'ด.':''}</span></td>${cells.map(c=>`<td>${c}</td>`).join('')}</tr>`;
+  });
+  const pct=exp?Math.round(done/exp*100):0;
+  const years=[...new Set(DB.records.map(r=>(r.date||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  $('#main').innerHTML=head('แผน / ติดตามการทำ PM',`เทียบรอบที่ควรทำ (จากรอบ PM หลักของแต่ละเครื่อง) กับบันทึกจริง`,
+    `<select style="width:auto" onchange="UI.year=+this.value;vPlan()">${years.map(x=>`<option value="${x}" ${+x===y?'selected':''}>ปี ${+x+543}</option>`).join('')}</select><select style="width:auto" onchange="UI.planSys=this.value;vPlan()"><option value="">ทุกระบบ</option>${Object.keys(SYS_TH).map(s=>`<option value="${s}" ${sysF===s?'selected':''}>${SYS_TH[s]}</option>`).join('')}</select>`)+
+  `<div class="grid k4"><div class="kpi ${pct>=90?'ok':pct>=70?'warn':'bad'}"><div class="l">PM Compliance ปี ${y+543}</div><div class="v">${pct}%</div><div class="h">ทำแล้ว ${done} / ครบรอบ ${exp} ครั้ง (ถึงเดือนปัจจุบัน)</div></div>
+   <div class="kpi"><div class="l">ความหมายสัญลักษณ์</div><div class="h" style="margin-top:6px;line-height:2"><span class="cell c-done">3M</span> ทำแล้ว (รอบ) &nbsp;<span class="cell c-miss">ขาด</span> ครบรอบแต่ไม่มีบันทึก &nbsp;<span class="cell c-cm">C</span> มีงานซ่อม</div></div></div>
+  <div class="card" style="margin-top:16px;padding:0"><div class="tbl-wrap" style="max-height:70vh;border:0"><table class="matrix"><tr><th>เครื่อง</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}</tr>${rows.join('')}</table></div></div>`;
+}
+
+/* ====================== MONTHLY SERVICE REPORTS (file 2) ====================== */
+function vReports(){
+  const y=UI.year, regs=DB.contractors.filter(c=>c.type==='regular');
+  const years=[...new Set([String(new Date().getFullYear()),...DB.reports.map(r=>r.month.slice(0,4))])].sort().reverse();
+  $('#main').innerHTML=head('ทะเบียนรายงานประจำเดือนของผู้รับเหมา',`Service Report ที่ผู้รับเหมาส่งทุกเดือน → ตรวจรับ → แตกเป็นประวัติรายเครื่องอัตโนมัติ`,
+    `<select style="width:auto" onchange="UI.year=+this.value;vReports()">${years.map(x=>`<option value="${x}" ${+x===y?'selected':''}>ปี ${+x+543}</option>`).join('')}</select><button class="btn pri" onclick="openReportForm({})">+ ลงทะเบียนรายงาน</button>`)+
+  `<div class="card" style="padding:0"><div class="tbl-wrap" style="border:0"><table class="matrix"><tr><th>ผู้รับเหมา / ขอบเขต</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}</tr>
+   ${regs.map(c=>`<tr><td><b>${esc(c.name)}</b><div class="muted small" style="white-space:normal;max-width:260px">${esc(c.scope||'')}</div></td>${MONTHS.map((_,i)=>{const ym=y+'-'+pad(i+1), rs=DB.reports.filter(r=>r.contractorId===c.id&&r.month===ym);
+     return `<td>${rs.map(r=>`<a href="javascript:openReportForm({id:'${r.id}'})" class="cell c-done" title="${esc(r.title)}">${r.round?'#'+r.round:'✓'}</a>`).join(' ')}${ym<=todayISO().slice(0,7)?`<a href="javascript:openReportForm({contractorId:'${c.id}',month:'${ym}'})" class="muted small" title="เพิ่มรายงานเดือนนี้" style="text-decoration:none"> +</a>`:''}</td>`;}).join('')}</tr>`).join('')}
+  </table></div></div>
+  <div class="card"><h3>รายงานทั้งหมด</h3>${DB.reports.length?`<div class="tbl-wrap"><table><tr><th>เดือน</th><th>ผู้รับเหมา</th><th>รายงาน</th><th>ครั้งที่</th><th>เครื่องที่ครอบคลุม</th><th>ปัญหาที่พบ</th><th>ไฟล์</th></tr>${DB.reports.slice().sort((a,b)=>b.month.localeCompare(a.month)).map(r=>`<tr class="click" onclick="openReportForm({id:'${r.id}'})"><td>${fmonth(r.month)}</td><td>${esc(conName(r.contractorId))}</td><td>${esc(r.title)}</td><td>${esc(r.round||'–')}</td><td>${r.equipIds.length?r.equipIds.map(esc).join(', '):'<span class="muted">ยังไม่ระบุ</span>'}</td><td style="max-width:280px">${esc((r.issues||'').slice(0,90))||'–'}</td><td>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📎</a>`:'<span class="muted small">ยังไม่แนบ</span>'}</td></tr>`).join('')}</table></div>`:'<div class="empty">ยังไม่มีรายงาน</div>'}</div>`;
+}
+let R=null;
+function openReportForm(o){
+  R=o.id?JSON.parse(JSON.stringify(DB.reports.find(r=>r.id===o.id))):{id:'',contractorId:o.contractorId||'',month:o.month||todayISO().slice(0,7),title:'',round:'',serviceDate:'',receivedDate:todayISO(),link:'',equipIds:[],summary:'',issues:''};
+  renderReportForm();
+}
+function renderReportForm(){
+  const c=DB.conById[R.contractorId]; const cand=c?DB.equip.filter(e=>(c.cats||[]).includes(e.category)):[];
+  const made=R.id?DB.records.filter(r=>r.reportId===R.id):[];
+  $('#modal').innerHTML=`<div class="mh"><h2>${R.id?'รายงานประจำเดือน':'ลงทะเบียนรายงานประจำเดือน'}</h2><button class="btn ghost" onclick="closeModal()">✕</button></div><div class="mb">
+   <div class="fg"><label class="f"><span>ผู้รับเหมา <span class="req">*</span></span><select onchange="R.contractorId=this.value;renderReportForm()"><option value="">— เลือก —</option>${DB.contractors.map(x=>`<option value="${x.id}" ${R.contractorId===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+    <label class="f"><span>ประจำเดือน <span class="req">*</span></span><input type="month" value="${esc(R.month)}" onchange="R.month=this.value"></label>
+    <label class="f"><span>ครั้งที่ (ตามสัญญา)</span><input type="number" value="${esc(R.round||'')}" oninput="R.round=this.value"></label></div>
+   <label class="f"><span>ชื่อรายงาน <span class="req">*</span></span><input value="${esc(R.title)}" oninput="R.title=this.value" placeholder="เช่น รายงานการบำรุงรักษาเครื่องกำเนิดไฟฟ้าสำรอง"></label>
+   <div class="fg"><label class="f"><span>วันที่เข้าบริการ</span><input type="date" value="${esc(R.serviceDate||'')}" onchange="R.serviceDate=this.value"></label>
+    <label class="f"><span>วันที่รับรายงาน</span><input type="date" value="${esc(R.receivedDate||'')}" onchange="R.receivedDate=this.value"></label>
+    <label class="f"><span>ลิงก์ไฟล์ PDF (Google Drive)</span><input value="${esc(R.link)}" oninput="R.link=this.value"></label></div>
+   <label class="f"><span>เครื่องจักรที่อยู่ในรายงาน</span><div class="chips">${cand.map(e=>`<label class="chip" style="cursor:pointer;background:${R.equipIds.includes(e.id)?'var(--brand-soft)':'var(--gray-soft)'};color:${R.equipIds.includes(e.id)?'var(--brand)':'var(--muted)'}"><input type="checkbox" style="width:auto" ${R.equipIds.includes(e.id)?'checked':''} onchange="R.equipIds=this.checked?[...R.equipIds,'${esc(e.id)}']:R.equipIds.filter(x=>x!=='${esc(e.id)}');renderReportForm()">${esc(e.id)}</label>`).join('')||'<span class="muted small">ผู้รับเหมารายนี้ยังไม่ได้ผูกกับประเภทเครื่องจักร (ตั้งได้ที่หน้า ผู้รับเหมา & สัญญา)</span>'}
+     ${cand.length?`<button class="btn sm ghost" onclick="R.equipIds=${JSON.stringify(cand.map(e=>e.id)).replace(/"/g,"'")};renderReportForm()">เลือกทั้งหมด</button>`:''}</div></label>
+   <label class="f"><span>สรุปงานที่ทำ</span><textarea oninput="R.summary=this.value">${esc(R.summary||'')}</textarea></label>
+   <label class="f"><span>ปัญหาอุปสรรค และแนวทางแก้ไข</span><textarea oninput="R.issues=this.value">${esc(R.issues||'')}</textarea></label>
+   ${made.length?`<div class="section-t">บันทึกรายเครื่องที่สร้างจากรายงานนี้ (${made.length})</div>${recTable(made)}`:''}
+  </div><div class="mf">${R.id&&!R.seed?'<button class="btn bad" style="margin-right:auto" onclick="deleteReport()">ลบ</button>':''}<button class="btn" onclick="closeModal()">ปิด</button><button class="btn" onclick="saveReport(false)">บันทึก</button><button class="btn pri" onclick="saveReport(true)" ${R.equipIds.length?'':'disabled'} title="สร้างร่างบันทึก PM ให้ทุกเครื่องที่เลือก">บันทึก + สร้างประวัติ PM รายเครื่อง →</button></div>`;
+  $('#mbg').classList.add('on');
+}
+function saveReport(spawn){
+  if(!R.contractorId||!R.month||!R.title){alert('กรุณากรอก ผู้รับเหมา / เดือน / ชื่อรายงาน');return;}
+  if(!R.id) R.id=uid('rp');
+  R.updatedAt=new Date().toISOString(); Store.putReport(R); buildDB();
+  const r=R;
+  if(spawn){ closeModal(); openRecordForm({type:'PM',contractType:'regular',contractorId:r.contractorId,equipIds:r.equipIds.slice(),date:r.serviceDate||r.month+'-01',link:r.link,round:r.round,reportId:r.id}); F.remark=r.summary||''; F.recommend=r.issues||''; renderForm(); toast('กรอกข้อมูลจากรายงานให้แล้ว ตรวจสอบรอบ PM แล้วกด ส่งตรวจรับ'); }
+  else { closeModal(); route(); toast('บันทึกรายงานแล้ว'); }
+}
+function deleteReport(){ if(!confirm('ลบรายงานนี้?'))return; Store.delReport(R); buildDB(); closeModal(); route(); }
+
+/* ====================== CONTRACTORS ====================== */
+function vCons(){
+  const y=String(UI.year);
+  const card=c=>{ const rs=DB.records.filter(r=>r.contractorId===c.id), eqs=DB.equip.filter(e=>e.contractorId===c.id), last=rs.find(r=>r.date);
+    const yrCost=rs.filter(r=>(r.date||'').startsWith(y)).reduce((s,r)=>s+(+r.cost||0),0);
+    const total=+c.totalRounds||0, done=+c.lastRound||0;
+    return `<tr class="click" onclick="openConForm('${c.id}')"><td><b>${esc(c.name)}</b>${c.contact||c.phone?`<div class="muted small">${esc([c.contact,c.phone].filter(Boolean).join(' · '))}</div>`:''}</td><td>${badge(CTYPE,c.type)}</td><td style="max-width:280px">${esc(c.scope||'–')}<div class="muted small">${esc((c.cats||[]).join(', '))}</div></td><td>${esc(c.freq||'–')}</td><td>${c.start||c.end?`${fdate(c.start)} – ${fdate(c.end)}`:'<span class="muted small">ยังไม่กรอก</span>'}${c.end&&daysBetween(todayISO(),c.end)<90?` <span class="badge b-warn">ใกล้หมดสัญญา</span>`:''}</td><td>${done?`${done}${total?' / '+total:''}${total?`<div class="prog"><i style="width:${Math.min(100,done/total*100)}%"></i></div>`:''}`:'–'}</td><td class="num">${eqs.length||'–'}</td><td class="num">${rs.length||'–'}</td><td>${last?fdate(last.date):'–'}</td><td class="num">${yrCost?money(yrCost):'–'}</td></tr>`; };
+  const adhoc=DB.records.filter(r=>r.contractType==='adhoc');
+  $('#main').innerHTML=head('ผู้รับเหมา & สัญญา','แยกผู้รับเหมาประจำ (สัญญา MA รายเดือน/รายรอบ) และผู้รับเหมาเฉพาะกิจ (จ้างครั้งคราว)','<button class="btn pri" onclick="openConForm()">+ เพิ่มผู้รับเหมา</button>')+
+  `<div class="card"><h3>ผู้รับเหมาประจำ</h3><div class="tbl-wrap"><table><tr><th>ชื่อ</th><th>ประเภท</th><th>ขอบเขตงาน / ประเภทเครื่อง</th><th>ความถี่</th><th>ระยะสัญญา</th><th>ครั้งที่ล่าสุด</th><th class="num">เครื่อง</th><th class="num">บันทึก</th><th>เข้าล่าสุด</th><th class="num">ค่าใช้จ่ายปีนี้</th></tr>${DB.contractors.filter(c=>c.type==='regular').map(card).join('')}</table></div>
+   <p class="muted small">ครั้งที่ล่าสุดตั้งต้นจากรายงานประจำเดือน ก.ย. 2569 · ระยะสัญญาและจำนวนครั้งทั้งหมดยังไม่มีในไฟล์ ให้กรอกเพิ่มโดยคลิกที่แถว</p></div>
+  <div class="card"><h3>ผู้รับเหมาเฉพาะกิจ</h3>${DB.contractors.filter(c=>c.type==='adhoc').length?`<div class="tbl-wrap"><table><tr><th>ชื่อ</th><th>ประเภท</th><th>ขอบเขต</th><th>ความถี่</th><th>ระยะ</th><th>ครั้ง</th><th class="num">เครื่อง</th><th class="num">บันทึก</th><th>เข้าล่าสุด</th><th class="num">ค่าใช้จ่ายปีนี้</th></tr>${DB.contractors.filter(c=>c.type==='adhoc').map(card).join('')}</table></div>`:'<div class="empty">ยังไม่มี — เพิ่มได้จากปุ่ม “+ เพิ่มผู้รับเหมา” หรือในฟอร์มบันทึกงาน</div>'}</div>
+  <div class="card"><h3>งานเฉพาะกิจทั้งหมด (${adhoc.length}) · รวม ${money(adhoc.reduce((s,r)=>s+(+r.cost||0),0))} บาท</h3>${recTable(adhoc)}</div>`;
+}
+let C=null;
+function openConForm(id){
+  C=id?JSON.parse(JSON.stringify(DB.conById[id])):{id:'',name:'',short:'',type:'regular',scope:'',cats:[],freq:'',contact:'',phone:'',start:'',end:'',totalRounds:'',lastRound:'',note:''};
+  const cats=[...new Set(DB.equip.map(e=>e.category))];
+  $('#modal').innerHTML=`<div class="mh"><h2>${id?'แก้ไขผู้รับเหมา':'เพิ่มผู้รับเหมา'}</h2><button class="btn ghost" onclick="closeModal()">✕</button></div><div class="mb">
+   <div class="fg"><label class="f"><span>ชื่อบริษัท <span class="req">*</span></span><input id="c_name" value="${esc(C.name)}"></label><label class="f"><span>ชื่อย่อ</span><input id="c_short" value="${esc(C.short||'')}"></label>
+   <label class="f"><span>ประเภท</span><select id="c_type">${Object.entries(CTYPE).map(([k,v])=>`<option value="${k}" ${C.type===k?'selected':''}>${v.t}</option>`).join('')}</select></label></div>
+   <label class="f"><span>ขอบเขตงาน</span><input id="c_scope" value="${esc(C.scope||'')}"></label>
+   <div class="fg"><label class="f"><span>ผู้ประสานงาน</span><input id="c_contact" value="${esc(C.contact||'')}"></label><label class="f"><span>โทรศัพท์</span><input id="c_phone" value="${esc(C.phone||'')}"></label><label class="f"><span>ความถี่เข้าบริการ</span><input id="c_freq" value="${esc(C.freq||'')}"></label></div>
+   <div class="fg"><label class="f"><span>เริ่มสัญญา</span><input type="date" id="c_start" value="${esc(C.start||'')}"></label><label class="f"><span>สิ้นสุดสัญญา</span><input type="date" id="c_end" value="${esc(C.end||'')}"></label><label class="f"><span>จำนวนครั้งตามสัญญา</span><input type="number" id="c_total" value="${esc(C.totalRounds||'')}"></label><label class="f"><span>ครั้งที่ล่าสุด</span><input type="number" id="c_last" value="${esc(C.lastRound||'')}"></label></div>
+   <label class="f"><span>ประเภทเครื่องจักรที่รับผิดชอบ (ใช้เติมผู้รับเหมาอัตโนมัติ)</span><div class="chips">${cats.map(k=>`<label class="chip" style="cursor:pointer"><input type="checkbox" class="c_cat" value="${esc(k)}" style="width:auto" ${(C.cats||[]).includes(k)?'checked':''}>${esc(k)}</label>`).join('')}</div></label>
+   <label class="f"><span>หมายเหตุ</span><textarea id="c_note">${esc(C.note||'')}</textarea></label></div>
+   <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn pri" onclick="saveCon()">บันทึก</button></div>`;
+  $('#mbg').classList.add('on');
+}
+function saveCon(){
+  const v=k=>$('#c_'+k).value.trim(); if(!v('name')){alert('กรอกชื่อ');return;}
+  Object.assign(C,{name:v('name'),short:v('short')||v('name'),type:v('type'),scope:v('scope'),contact:v('contact'),phone:v('phone'),freq:v('freq'),start:v('start'),end:v('end'),totalRounds:v('total'),lastRound:v('last'),note:v('note'),cats:[...document.querySelectorAll('.c_cat:checked')].map(x=>x.value)});
+  if(!C.id) C.id=uid('c'); Store.putContractor(C); buildDB(); closeModal(); route(); toast('บันทึกผู้รับเหมาแล้ว');
+}
+
+/* ====================== DATA QUALITY ====================== */
+function vQuality(){
+  const by={}; DB.records.filter(r=>r.seed&&r.by&&!/johnson|ไฟร์เทรด/i.test(r.by)).forEach(r=>{const k=normName(r.by); const o=by[k]=by[k]||{k,names:new Set(),n:0,cats:new Set()}; o.names.add(r.by); o.n++; o.cats.add((DB.eqById[r.equipId]||{}).category);});
+  const techs=Object.values(by).sort((a,b)=>b.n-a.n);
+  const groups={}; DB.issues.forEach(i=>(groups[i.kind]=groups[i.kind]||[]).push(i));
+  const noCon=DB.records.filter(r=>!r.contractorId).length;
+  $('#main').innerHTML=head('ตรวจคุณภาพข้อมูลต้นฉบับ','ตรวจจากไฟล์ Excel ประวัติเครื่องจักร 159 ไฟล์ — แก้ที่ต้นฉบับหรือแก้ในระบบนี้','')+
+  `<div class="card"><h3>1) ผูกชื่อช่าง → บริษัทผู้รับเหมา <span class="badge ${noCon?'b-warn':'b-ok'}">ยังไม่ระบุผู้รับเหมา ${noCon.toLocaleString()} รายการ</span></h3>
+   <p class="muted small" style="margin-top:-6px">ไฟล์เดิมช่อง “ผู้ปฏิบัติงาน” เป็นชื่อช่าง ไม่ใช่ชื่อบริษัท — เลือกบริษัทให้แต่ละชื่อ ระบบจะเติมผู้รับเหมาให้ประวัติเก่าทั้งหมด (ชื่อที่สะกดต่างกัน เช่น “นาย อรรถวุฒิ / นายอรรถวุฒิ” ถูกรวมเป็นคนเดียวแล้ว)</p>
+   <div class="tbl-wrap"><table><tr><th>ชื่อช่าง (ที่พบในไฟล์)</th><th class="num">รายการ</th><th>ประเภทเครื่องที่ทำ</th><th>บริษัทผู้รับเหมา</th></tr>${techs.map(t=>`<tr><td>${[...t.names].map(esc).join(' / ')}</td><td class="num">${t.n}</td><td class="small">${[...t.cats].map(esc).join(', ')}</td><td><select onchange="setTech('${esc(t.k)}',this.value)"><option value="">— ยังไม่ระบุ —</option>${DB.contractors.map(c=>`<option value="${c.id}" ${RAW.techMap[t.k]===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></td></tr>`).join('')}</table></div></div>
+  ${Object.entries(groups).map(([k,L])=>`<div class="card"><h3>${L[0].sev==='bad'?'🔴':'🟡'} ${esc(k)} <span class="badge b-gray">${L.length}</span></h3><div class="tbl-wrap" style="max-height:300px"><table><tr><th>เครื่อง</th><th>รายละเอียด</th><th>ไฟล์ต้นฉบับ</th></tr>${L.map(i=>`<tr class="click" onclick="nav('eq/${encodeURIComponent(i.eq)}')"><td><b>${esc(i.eq)}</b></td><td>${esc(i.detail)}</td><td class="muted small">${esc((DB.eqById[i.eq]||{}).file||'')}</td></tr>`).join('')}</table></div></div>`).join('')}`;
+}
+function setTech(k,v){ Store.setTech(k,v); buildDB(); renderNav('quality'); toast('อัปเดตผู้รับเหมาให้ประวัติเก่าแล้ว'); }
+
+/* ====================== EXPORT / BACKUP ====================== */
+function needXLSX(){ if(!window.XLSX){ alert('โหลดตัวสร้าง Excel ไม่ได้ (ต้องต่ออินเทอร์เน็ต)'); return false;} return true; }
+const thD = iso=>iso?iso.split('-').reverse().map((x,i)=>i===2?+x+543:+x).join('/'):'';
+function exportEquipXlsx(id){
+  if(!needXLSX()) return; const e=DB.eqById[id], wb=XLSX.utils.book_new();
+  const reg=[['ทะเบียนประวัติเครื่องจักร ( Equipment Register & History )'],[e.info['Project Name']||''],[]].concat(Object.entries(e.info).map(([k,v])=>[k,v])).concat([[],['ข้อมูลทางเทคนิค ( Technical Data )']]).concat(Object.entries(e.tech).map(([k,v])=>[k,v]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(reg),e.id.slice(0,28));
+  const pm=[['บันทึกการบำรุงรักษา ( Preventive Maintenance Record )'],[e.name+' : '+e.id],[],['วันที่ทำ (Date)','รอบ (Task)','ผู้ปฏิบัติงาน (By)','ผู้รับเหมา','รหัสอะไหล่ (Code)','รายการเปลี่ยนอะไหล่ ( Spare Parts )','หมายเหตุ ( Remark )','สถานะ']];
+  e.recs.filter(r=>r.type==='PM').slice().reverse().forEach(r=>pm.push([thD(r.date)||r.rawDate,r.task,r.by,conName(r.contractorId),(r.parts||[]).map(p=>p.code).filter(Boolean).join(', '),(r.parts||[]).map(p=>p.name+(p.qty?' x'+p.qty:'')).filter(Boolean).join(', '),[r.remark,r.recommend].filter(Boolean).join(' / '),STATUS[r.status]?STATUS[r.status].t:'']));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pm),'PM');
+  const cm=[['บันทึกการซ่อม ( Repair Record )'],[e.name+' : '+e.id],[],['ครั้งที่','วันแจ้งซ่อม (Order Date)','เลขที่ใบแจ้งซ่อม (Job Number)','วันแล้วเสร็จ (Final Date)','ผู้รับเหมา','ประเภท','รหัสอะไหล่ (Code)','รายการเปลี่ยนอะไหล่ ( Spare Parts )','สาเหตุ (Cause)','การดำเนินการแก้ไข (Solution)','ค่าใช้จ่าย','PO/ใบเสนอราคา']];
+  e.recs.filter(r=>r.type!=='PM').slice().reverse().forEach((r,i)=>cm.push([i+1,thD(r.date)||r.rawDate,r.job||'',thD(r.finishDate),conName(r.contractorId),r.contractType==='adhoc'?'เฉพาะกิจ':'ประจำ',(r.parts||[]).map(p=>p.code).filter(Boolean).join(', '),(r.parts||[]).map(p=>p.name+(p.qty?' x'+p.qty:'')).filter(Boolean).join(', '),r.cause||'',r.remark||'',r.cost||'',r.ref||'']));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cm),'CM');
+  XLSX.writeFile(wb,`ประวัติเครื่องจักร ${e.id}.xlsx`);
+}
+function recRow(r){ const e=DB.eqById[r.equipId]||{}; return {'วันที่':thD(r.date)||r.rawDate,'เครื่อง':r.equipId,'ประเภทเครื่อง':e.category,'ระบบ':SYS_TH[e.systemGroup]||e.systemGroup,'ประเภทงาน':TYPE[r.type].t,'รอบ PM':r.task||'','ลักษณะผู้รับเหมา':CTYPE[r.contractType]?CTYPE[r.contractType].t:'','ผู้รับเหมา':conName(r.contractorId),'ช่าง':r.by||'','เลขที่ใบแจ้งซ่อม':r.job||'','สาเหตุ':r.cause||'','รายละเอียด':r.remark||'','อะไหล่':(r.parts||[]).map(p=>[p.code,p.name,p.qty].filter(Boolean).join(' ')).join('; '),'ผลหลังทำงาน':r.result?RESULT[r.result].t:'','ข้อเสนอแนะ':r.recommend||'','ค่าใช้จ่าย':r.cost||'','PO/ใบเสนอราคา':r.ref||'','วันแล้วเสร็จ':thD(r.finishDate),'สถานะ':r.seed?'นำเข้า':STATUS[r.status].t,'ผู้ตรวจรับ':r.approvedBy||r.inspector||'','ลิงก์':r.link||''}; }
+function exportRecordsXlsx(all){ if(!needXLSX()) return; const L=all?DB.records:filteredRecords(); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(L.map(recRow)),'Records'); if(all){ XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.equip.map(e=>({'รหัส':e.id,'ชื่อ':e.name,'ระบบ':SYS_TH[e.systemGroup],'ประเภท':e.category,'ชั้น':e.info.Floor,'โซน':e.info.Zone,'รหัสเครื่องจักร':e.info['Code Number'],'ผู้รับเหมาประจำ':conName(e.contractorId),'รอบ PM (เดือน)':e.baseFreq||'','PM ล่าสุด':thD(e.lastPM),'ครบกำหนด':thD(e.nextDue)}))),'Equipment'); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.contractors.map(c=>({'ID':c.id,'ชื่อ':c.name,'ประเภท':CTYPE[c.type].t,'ขอบเขต':c.scope,'ความถี่':c.freq,'เริ่ม':c.start||'','สิ้นสุด':c.end||'','ครั้งทั้งหมด':c.totalRounds||'','ครั้งล่าสุด':c.lastRound||''}))),'Contractors'); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.reports.map(r=>({'เดือน':r.month,'ผู้รับเหมา':conName(r.contractorId),'รายงาน':r.title,'ครั้งที่':r.round||'','เครื่อง':r.equipIds.join(', '),'สรุป':r.summary||'','ปัญหา':r.issues||'','ลิงก์':r.link||''}))),'MonthlyReports'); } XLSX.writeFile(wb,all?'ประวัติงานผู้รับเหมา_ทั้งหมด.xlsx':'ประวัติงานผู้รับเหมา.xlsx'); }
+function backup(){ const b=new Blob([JSON.stringify(Store.user,null,1)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='contractor-history-backup-'+todayISO()+'.json'; a.click(); }
+function restore(inp){ const f=inp.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ try{ const j=JSON.parse(rd.result); if(!j.records) throw new Error('ไฟล์ไม่ถูกต้อง'); if(!confirm('แทนที่ข้อมูลที่บันทึกในเครื่องนี้ด้วยไฟล์สำรอง?')) return; Store.user=Object.assign({records:{},deleted:{},contractors:{},reports:{},techMap:{},settings:{}},j); Store.save(); RAW=rawFromLocal(); buildDB(); route(); toast('กู้คืนข้อมูลแล้ว'); }catch(e){ alert(e.message); } }; rd.readAsText(f); }
+function vSettings(){
+  const n=Object.keys(Store.user.records).length;
+  $('#main').innerHTML=head('ส่งออก / สำรองข้อมูล','','')+
+  `<div class="grid c2"><div class="card"><h3>ส่งออก Excel</h3><p class="muted">รวมประวัติทั้งหมด + ทะเบียนเครื่อง + ผู้รับเหมา + รายงานประจำเดือน ในไฟล์เดียว · รายเครื่องแบบฟอร์มเดิม (Register / PM / CM) กดได้ที่หน้าเครื่องจักร</p><button class="btn pri" onclick="exportRecordsXlsx(true)">⇩ ส่งออก Excel ทั้งหมด</button></div>
+   ${GAS?`<div class="card"><h3>ฐานข้อมูล Google Sheets</h3><p class="muted">ข้อมูลทั้งหมดเก็บใน Google Sheets ที่ผูกกับเว็บแอปนี้ (ชีท Equipment, WorkRecords, Contractors, MonthlyReports, TechMap, Settings) · กู้คืนได้จาก ไฟล์ › ประวัติเวอร์ชัน ของชีท</p><button class="btn" onclick="Store.reload()">⟳ รีเฟรชข้อมูลจากชีท</button></div>`
+   :`<div class="card"><h3>สำรอง / กู้คืน</h3><p class="muted">ข้อมูลที่บันทึกเพิ่มในระบบนี้ (${n} รายการ) เก็บอยู่ในเบราว์เซอร์เครื่องนี้ — ควรสำรองเป็นประจำ (หรือใช้เวอร์ชัน Google Sheets)</p><button class="btn" onclick="backup()">⇩ สำรองข้อมูล (.json)</button> <label class="btn">⇧ กู้คืน<input type="file" accept=".json" style="display:none" onchange="restore(this)"></label> <button class="btn bad" onclick="if(confirm('ล้างข้อมูลที่บันทึกเพิ่มทั้งหมด? (ข้อมูลนำเข้าจาก Excel ยังอยู่)')){localStorage.removeItem(LS_KEY);location.reload()}">ล้างข้อมูลที่เพิ่ม</button></div>`}</div>
+  <div class="card"><h3>แหล่งข้อมูล</h3><ul class="muted" style="margin:0;padding-left:20px"><li>ประวัติเดิม: โฟลเดอร์ 1.4.2 ประวัติเครื่องจักรหลัก (Main Equipment History) by MA Service Contractor — 159 ไฟล์, PM ${DB.records.filter(r=>r.seed&&r.type==='PM').length.toLocaleString()} / ซ่อม ${DB.records.filter(r=>r.seed&&r.type!=='PM').length} รายการ (ดึงเมื่อ 23 พ.ย. 2569)</li><li>รายงานประจำเดือน: Service Report เดือน ก.ย. 2569 จำนวน 11 ฉบับ (ลงทะเบียนชื่อ/ครั้งที่ไว้แล้ว — แนบลิงก์ PDF ได้ที่หน้ารายงานประจำเดือน)</li></ul></div>`;
+}
+
+/* ====================== BOOT ====================== */
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('#mbg').classList.contains('on')) closeModal(); });
+$('#mbg').addEventListener('mousedown',e=>{ if(e.target.id==='mbg') closeModal(); });
+Store.init(()=>{ buildDB(); route(); });
+</script>
+</body>
+</html>
